@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import Callable
 from uuid import UUID
 
@@ -28,6 +29,7 @@ class SyncTransactions:
                 existing = await uow.transactions.get_by_external_id(info.external_id)
                 if existing is not None:
                     continue
+                eur_amount = await self._to_eur(uow, info.currency, info.amount, info.booked_at.date())
                 transaction = Transaction.create(
                     account_id=account_id,
                     external_id=info.external_id,
@@ -37,7 +39,17 @@ class SyncTransactions:
                     booked_at=info.booked_at,
                     now=now,
                 )
+                transaction.eur_amount = eur_amount
                 await uow.transactions.add(transaction)
                 added += 1
 
         return added
+
+    @staticmethod
+    async def _to_eur(uow: UnitOfWork, currency: str, amount: Decimal, date) -> Decimal | None:
+        if currency == "EUR":
+            return amount
+        rate = await uow.fx_rates.get_rate(currency, date)
+        if rate is None:
+            return None
+        return (amount / rate).quantize(Decimal("0.0001"))

@@ -4,11 +4,13 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from src.app.ports.repositories.account_repository import AccountRepository
 from src.app.ports.repositories.connection_session_repository import ConnectionSessionRepository
+from src.app.ports.repositories.fx_rate_repository import FxRateRepository
 from src.app.ports.repositories.refresh_token_repository import RefreshTokenRepository
 from src.app.ports.repositories.transaction_repository import TransactionRepository
 from src.app.ports.repositories.user_repository import UserRepository
 from src.db.repositories.account_repository import PostgresAccountRepository
 from src.db.repositories.connection_session_repository import PostgresConnectionSessionRepository
+from src.db.repositories.fx_rate_repository import PostgresFxRateRepository
 from src.db.repositories.refresh_token_repository import PostgresRefreshTokenRepository
 from src.db.repositories.transaction_repository import PostgresTransactionRepository
 from src.db.repositories.user_repository import PostgresUserRepository
@@ -20,6 +22,7 @@ class SqlAlchemyUnitOfWork:
     accounts: AccountRepository
     connection_sessions: ConnectionSessionRepository
     transactions: TransactionRepository
+    fx_rates: FxRateRepository
 
     def __init__(self, session_maker: async_sessionmaker[AsyncSession]) -> None:
         self._session_maker = session_maker
@@ -32,6 +35,7 @@ class SqlAlchemyUnitOfWork:
         self.accounts = PostgresAccountRepository(self._session)
         self.connection_sessions = PostgresConnectionSessionRepository(self._session)
         self.transactions = PostgresTransactionRepository(self._session)
+        self.fx_rates = PostgresFxRateRepository(self._session)
         return self
 
     async def __aexit__(

@@ -16,5 +16,11 @@ class InMemoryTransactionRepository:
                 return t
         return None
 
+    async def get_by_id(self, transaction_id: UUID) -> Transaction | None:
+        return self._by_id.get(transaction_id)
+
     async def list_by_account(self, account_id: UUID) -> list[Transaction]:
         return [t for t in self._by_id.values() if t.account_id == account_id]
+
+    async def update(self, transaction: Transaction) -> None:
+        self._by_id[transaction.id] = transaction

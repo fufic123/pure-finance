@@ -9,6 +9,7 @@ from src.app.services.auth.logout import Logout
 from src.app.services.auth.refresh_tokens import RefreshTokens
 from src.app.services.auth.revoke_all_sessions import RevokeAllSessions
 from src.app.services.auth.start_google_auth import StartGoogleAuth
+from src.app.services.banking.fetch_fx_rates import FetchFxRates
 from src.app.services.banking.finalize_bank_connection import FinalizeBankConnection
 from src.app.services.banking.get_account import GetAccount
 from src.app.services.banking.list_accounts import ListAccounts
@@ -22,6 +23,7 @@ from src.integrations.auth.google_oauth import GoogleOauthClient
 from src.integrations.auth.pyjwt_issuer import PyJwtIssuer
 from src.integrations.auth.secrets_token_generator import SecretsTokenGenerator
 from src.integrations.banking.gocardless_client import GoCardlessClient
+from src.integrations.fx.ecb import EcbFxRateProvider
 from src.integrations.cache.redis_rate_limiter import RedisRateLimiter
 from src.integrations.cache.redis_state_store import RedisStateStore
 from src.integrations.clock import SystemClock
@@ -123,6 +125,12 @@ class AppContainer:
 
     def list_accounts(self) -> ListAccounts:
         return ListAccounts(uow_factory=self._uow_factory)
+
+    def fetch_fx_rates(self) -> FetchFxRates:
+        return FetchFxRates(
+            uow_factory=self._uow_factory,
+            provider=EcbFxRateProvider(self._http),
+        )
 
     def sync_transactions(self) -> SyncTransactions:
         return SyncTransactions(

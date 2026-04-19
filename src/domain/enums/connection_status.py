@@ -5,3 +5,4 @@ class ConnectionStatus(StrEnum):
     CREATED = "CREATED"
     LINKED = "LINKED"
     EXPIRED = "EXPIRED"
+    REVOKED = "REVOKED"

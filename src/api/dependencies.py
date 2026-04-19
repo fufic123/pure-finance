@@ -14,8 +14,10 @@ from src.app.services.banking.finalize_bank_connection import FinalizeBankConnec
 from src.app.services.banking.get_account import GetAccount
 from src.app.services.banking.get_balance import GetBalance
 from src.app.services.banking.list_accounts import ListAccounts
+from src.app.services.banking.list_connections import ListConnections
 from src.app.services.banking.list_institutions import ListInstitutions
 from src.app.services.banking.list_transactions import ListTransactions
+from src.app.services.banking.revoke_connection import RevokeConnection
 from src.app.services.banking.start_bank_connection import StartBankConnection
 from src.app.services.banking.sync_account_balance import SyncAccountBalance
 from src.app.services.banking.sync_transactions import SyncTransactions
@@ -108,6 +110,14 @@ def get_get_balance(container: Container) -> GetBalance:
 
 def get_sync_account_balance(container: Container) -> SyncAccountBalance:
     return container.sync_account_balance()
+
+
+def get_list_connections(container: Container) -> ListConnections:
+    return container.list_connections()
+
+
+def get_revoke_connection(container: Container) -> RevokeConnection:
+    return container.revoke_connection()
 
 
 def get_list_categories(container: Container) -> ListCategories:

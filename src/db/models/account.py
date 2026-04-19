@@ -15,6 +15,11 @@ class AccountModel(Base):
         ForeignKey("users.id", ondelete="CASCADE"),
         index=True,
     )
+    connection_session_id: Mapped[UUID] = mapped_column(
+        ForeignKey("connection_sessions.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
     institution_external_id: Mapped[str] = mapped_column(String(256), index=True)
     external_id: Mapped[str] = mapped_column(String(256), unique=True, index=True)
     iban: Mapped[str | None] = mapped_column(String(34), nullable=True)

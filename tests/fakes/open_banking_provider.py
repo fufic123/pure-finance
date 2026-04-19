@@ -42,3 +42,6 @@ class FakeOpenBankingProvider:
 
     async def get_balance(self, account_external_id: str) -> BalanceInfo | None:
         return self._balance
+
+    async def revoke_requisition(self, requisition_id: str) -> None:
+        pass

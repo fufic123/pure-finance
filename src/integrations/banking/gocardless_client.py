@@ -117,6 +117,14 @@ class GoCardlessClient:
             if "transactionId" in t
         ]
 
+    async def revoke_requisition(self, requisition_id: str) -> None:
+        token = await self._get_token()
+        response = await self._http.delete(
+            f"{self._BASE_URL}/requisitions/{requisition_id}/",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        response.raise_for_status()
+
     async def get_balance(self, account_external_id: str) -> BalanceInfo | None:
         token = await self._get_token()
         response = await self._http.get(

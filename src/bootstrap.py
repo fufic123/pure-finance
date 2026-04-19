@@ -20,8 +20,10 @@ from src.app.services.banking.finalize_bank_connection import FinalizeBankConnec
 from src.app.services.banking.get_account import GetAccount
 from src.app.services.banking.get_balance import GetBalance
 from src.app.services.banking.list_accounts import ListAccounts
+from src.app.services.banking.list_connections import ListConnections
 from src.app.services.banking.list_institutions import ListInstitutions
 from src.app.services.banking.list_transactions import ListTransactions
+from src.app.services.banking.revoke_connection import RevokeConnection
 from src.app.services.banking.start_bank_connection import StartBankConnection
 from src.app.services.banking.sync_account_balance import SyncAccountBalance
 from src.app.services.banking.sync_transactions import SyncTransactions
@@ -133,6 +135,12 @@ class AppContainer:
 
     def list_accounts(self) -> ListAccounts:
         return ListAccounts(uow_factory=self._uow_factory)
+
+    def list_connections(self) -> ListConnections:
+        return ListConnections(uow_factory=self._uow_factory)
+
+    def revoke_connection(self) -> RevokeConnection:
+        return RevokeConnection(uow_factory=self._uow_factory, provider=self._gocardless)
 
     def get_balance(self) -> GetBalance:
         return GetBalance(uow_factory=self._uow_factory)

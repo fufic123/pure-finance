@@ -48,3 +48,6 @@ class ConnectionSession:
 
     def mark_expired(self) -> None:
         self.status = ConnectionStatus.EXPIRED
+
+    def mark_revoked(self) -> None:
+        self.status = ConnectionStatus.REVOKED

@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.models.connection_session import ConnectionSessionModel
@@ -17,6 +18,23 @@ class PostgresConnectionSessionRepository:
     async def get_by_id(self, session_id: UUID) -> ConnectionSession | None:
         model = await self._session.get(ConnectionSessionModel, session_id)
         return self._to_entity(model) if model else None
+
+    async def list_by_user(self, user_id: UUID) -> list[ConnectionSession]:
+        stmt = (
+            select(ConnectionSessionModel)
+            .where(
+                ConnectionSessionModel.user_id == user_id,
+                ConnectionSessionModel.status == ConnectionStatus.LINKED,
+            )
+            .order_by(ConnectionSessionModel.created_at.desc())
+        )
+        models = (await self._session.execute(stmt)).scalars().all()
+        return [self._to_entity(m) for m in models]
+
+    async def update_status(self, session: ConnectionSession) -> None:
+        model = await self._session.get(ConnectionSessionModel, session.id)
+        if model is not None:
+            model.status = session.status.value
 
     @staticmethod
     def _to_entity(model: ConnectionSessionModel) -> ConnectionSession:

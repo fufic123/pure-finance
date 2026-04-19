@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.models.account import AccountModel
@@ -33,11 +33,17 @@ class PostgresAccountRepository:
         models = (await self._session.execute(stmt)).scalars().all()
         return [self._to_entity(m) for m in models]
 
+    async def delete_by_connection_session(self, session_id: UUID) -> None:
+        await self._session.execute(
+            delete(AccountModel).where(AccountModel.connection_session_id == session_id)
+        )
+
     @staticmethod
     def _to_entity(model: AccountModel) -> Account:
         return Account(
             id=model.id,
             user_id=model.user_id,
+            connection_session_id=model.connection_session_id,
             institution_external_id=model.institution_external_id,
             external_id=model.external_id,
             iban=model.iban,
@@ -51,6 +57,7 @@ class PostgresAccountRepository:
         return AccountModel(
             id=entity.id,
             user_id=entity.user_id,
+            connection_session_id=entity.connection_session_id,
             institution_external_id=entity.institution_external_id,
             external_id=entity.external_id,
             iban=entity.iban,

@@ -42,6 +42,7 @@ class FinalizeBankConnection:
                     continue
                 account = Account.create(
                     user_id=user_id,
+                    connection_session_id=session.id,
                     institution_external_id=session.institution_id,
                     external_id=info.external_id,
                     iban=info.iban,

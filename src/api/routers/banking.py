@@ -9,14 +9,17 @@ from src.api.dependencies import (
     get_get_account,
     get_get_balance,
     get_list_accounts,
+    get_list_connections,
     get_list_institutions,
     get_list_transactions,
+    get_revoke_connection,
     get_start_bank_connection,
     get_sync_account_balance,
     get_sync_transactions,
 )
 from src.api.dtos.account_response import AccountResponse
 from src.api.dtos.balance_response import BalanceResponse
+from src.api.dtos.connection_response import ConnectionResponse
 from src.api.dtos.institution_response import InstitutionResponse
 from src.api.dtos.start_connection_request import StartConnectionRequest
 from src.api.dtos.start_connection_response import StartConnectionResponse
@@ -25,8 +28,10 @@ from src.app.services.banking.finalize_bank_connection import FinalizeBankConnec
 from src.app.services.banking.get_account import GetAccount
 from src.app.services.banking.get_balance import GetBalance
 from src.app.services.banking.list_accounts import ListAccounts
+from src.app.services.banking.list_connections import ListConnections
 from src.app.services.banking.list_institutions import ListInstitutions
 from src.app.services.banking.list_transactions import ListTransactions
+from src.app.services.banking.revoke_connection import RevokeConnection
 from src.app.services.banking.start_bank_connection import StartBankConnection
 from src.app.services.banking.sync_account_balance import SyncAccountBalance
 from src.app.services.banking.sync_transactions import SyncTransactions
@@ -42,6 +47,24 @@ async def list_institutions(
 ) -> list[InstitutionResponse]:
     institutions = await service(country)
     return [InstitutionResponse.from_institution(i) for i in institutions]
+
+
+@router.get("/connections", response_model=list[ConnectionResponse])
+async def list_connections(
+    user: Annotated[User, Depends(get_current_user)],
+    service: Annotated[ListConnections, Depends(get_list_connections)],
+) -> list[ConnectionResponse]:
+    sessions = await service(user.id)
+    return [ConnectionResponse.from_session(s) for s in sessions]
+
+
+@router.delete("/connections/{session_id}", status_code=204)
+async def revoke_connection(
+    session_id: UUID,
+    user: Annotated[User, Depends(get_current_user)],
+    service: Annotated[RevokeConnection, Depends(get_revoke_connection)],
+) -> None:
+    await service(session_id=session_id, user_id=user.id)
 
 
 @router.post("/connections/start", response_model=StartConnectionResponse)
@@ -96,7 +119,7 @@ async def sync_account(
     sync_balance: Annotated[SyncAccountBalance, Depends(get_sync_account_balance)],
 ) -> dict:
     account = await get_acct(account_id=account_id, user_id=user.id)
-    added = await sync(account_id=account.id, account_external_id=account.external_id)
+    added = await sync(account_id=account.id, account_external_id=account.external_id, user_id=user.id)
     await sync_balance(account_id=account.id, account_external_id=account.external_id)
     return {"added": added}
 

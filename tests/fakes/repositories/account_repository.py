@@ -24,3 +24,8 @@ class InMemoryAccountRepository:
 
     async def list_all(self) -> list[Account]:
         return list(self._by_id.values())
+
+    async def delete_by_connection_session(self, session_id: UUID) -> None:
+        to_delete = [aid for aid, a in self._by_id.items() if a.connection_session_id == session_id]
+        for aid in to_delete:
+            del self._by_id[aid]

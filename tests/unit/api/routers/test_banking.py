@@ -11,9 +11,11 @@ from src.api.dependencies import (
     get_get_account,
     get_get_balance,
     get_list_accounts,
+    get_list_connections,
     get_list_institutions,
     get_list_transactions,
     get_rate_limiter,
+    get_revoke_connection,
     get_start_bank_connection,
     get_sync_account_balance,
     get_sync_transactions,
@@ -131,6 +133,16 @@ class StubGetBalance:
         return self._balance
 
 
+class _StubListConnections:
+    async def __call__(self, user_id) -> list:
+        return []
+
+
+class _StubRevokeConnection:
+    async def __call__(self, session_id, user_id) -> None:
+        pass
+
+
 class _NoopGetCurrentUser:
     async def __call__(self, token: str) -> User:
         return _USER
@@ -156,6 +168,7 @@ def _make_account(user_id: UUID | None = None) -> Account:
     return Account(
         id=uuid4(),
         user_id=user_id or _USER_ID,
+        connection_session_id=uuid4(),
         institution_external_id="REVOLUT_LT",
         external_id="acc-ext-1",
         iban="LT12 3456 7890 1234 5678",
@@ -178,6 +191,8 @@ def _base_overrides(app) -> None:
     app.dependency_overrides[get_sync_transactions] = lambda: StubSyncTransactions()
     app.dependency_overrides[get_sync_account_balance] = lambda: StubSyncAccountBalance()
     app.dependency_overrides[get_get_balance] = lambda: StubGetBalance()
+    app.dependency_overrides[get_list_connections] = lambda: _StubListConnections()
+    app.dependency_overrides[get_revoke_connection] = lambda: _StubRevokeConnection()
 
 
 def _client_with(**service_overrides) -> TestClient:

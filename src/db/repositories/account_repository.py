@@ -33,6 +33,11 @@ class PostgresAccountRepository:
         models = (await self._session.execute(stmt)).scalars().all()
         return [self._to_entity(m) for m in models]
 
+    async def delete(self, account_id: UUID) -> None:
+        await self._session.execute(
+            delete(AccountModel).where(AccountModel.id == account_id)
+        )
+
     async def delete_by_connection_session(self, session_id: UUID) -> None:
         await self._session.execute(
             delete(AccountModel).where(AccountModel.connection_session_id == session_id)

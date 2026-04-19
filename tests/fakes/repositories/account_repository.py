@@ -22,6 +22,9 @@ class InMemoryAccountRepository:
     async def list_by_user(self, user_id: UUID) -> list[Account]:
         return [a for a in self._by_id.values() if a.user_id == user_id]
 
+    async def delete(self, account_id: UUID) -> None:
+        self._by_id.pop(account_id, None)
+
     async def list_all(self) -> list[Account]:
         return list(self._by_id.values())
 

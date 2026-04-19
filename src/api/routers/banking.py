@@ -1,7 +1,8 @@
+from datetime import date
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 
 from src.api.dependencies import (
     get_current_user,
@@ -17,6 +18,7 @@ from src.api.dependencies import (
     get_start_bank_connection,
     get_sync_account_balance,
     get_sync_transactions,
+    get_update_transaction,
 )
 from src.api.dtos.account_response import AccountResponse
 from src.api.dtos.balance_response import BalanceResponse
@@ -25,6 +27,7 @@ from src.api.dtos.institution_response import InstitutionResponse
 from src.api.dtos.start_connection_request import StartConnectionRequest
 from src.api.dtos.start_connection_response import StartConnectionResponse
 from src.api.dtos.transaction_response import TransactionResponse
+from src.api.dtos.update_transaction_request import UpdateTransactionRequest
 from src.app.services.banking.delete_account import DeleteAccount
 from src.app.services.banking.finalize_bank_connection import FinalizeBankConnection
 from src.app.services.banking.get_account import GetAccount
@@ -37,6 +40,7 @@ from src.app.services.banking.revoke_connection import RevokeConnection
 from src.app.services.banking.start_bank_connection import StartBankConnection
 from src.app.services.banking.sync_account_balance import SyncAccountBalance
 from src.app.services.banking.sync_transactions import SyncTransactions
+from src.app.services.banking.update_transaction import UpdateTransaction
 from src.domain.entities.user import User
 
 router = APIRouter()
@@ -148,8 +152,35 @@ async def get_account_balance(
 @router.get("/accounts/{account_id}/transactions", response_model=list[TransactionResponse])
 async def list_transactions(
     account_id: UUID,
-    _: Annotated[User, Depends(get_current_user)],
+    user: Annotated[User, Depends(get_current_user)],
     service: Annotated[ListTransactions, Depends(get_list_transactions)],
+    from_date: Annotated[date | None, Query(alias="from")] = None,
+    to_date: Annotated[date | None, Query(alias="to")] = None,
+    category_id: Annotated[UUID | None, Query()] = None,
 ) -> list[TransactionResponse]:
-    transactions = await service(account_id=account_id, user_id=_.id)
+    transactions = await service(
+        account_id=account_id,
+        user_id=user.id,
+        from_date=from_date,
+        to_date=to_date,
+        category_id=category_id,
+    )
     return [TransactionResponse.from_transaction(t) for t in transactions]
+
+
+@router.patch("/transactions/{transaction_id}", response_model=TransactionResponse)
+async def update_transaction(
+    transaction_id: UUID,
+    body: UpdateTransactionRequest,
+    user: Annotated[User, Depends(get_current_user)],
+    service: Annotated[UpdateTransaction, Depends(get_update_transaction)],
+) -> TransactionResponse:
+    transaction = await service(
+        transaction_id=transaction_id,
+        user_id=user.id,
+        note=body.note,
+        note_provided="note" in body.model_fields_set,
+        category_id=body.category_id,
+        category_provided="category_id" in body.model_fields_set,
+    )
+    return TransactionResponse.from_transaction(transaction)

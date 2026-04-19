@@ -10,6 +10,7 @@ from src.app.services.auth.google_callback import GoogleCallback
 from src.app.services.auth.logout import Logout
 from src.app.services.auth.refresh_tokens import RefreshTokens
 from src.app.services.auth.start_google_auth import StartGoogleAuth
+from src.app.services.banking.delete_account import DeleteAccount
 from src.app.services.banking.finalize_bank_connection import FinalizeBankConnection
 from src.app.services.banking.get_account import GetAccount
 from src.app.services.banking.get_balance import GetBalance
@@ -17,6 +18,7 @@ from src.app.services.banking.list_accounts import ListAccounts
 from src.app.services.banking.list_connections import ListConnections
 from src.app.services.banking.list_institutions import ListInstitutions
 from src.app.services.banking.list_transactions import ListTransactions
+from src.app.services.banking.update_transaction import UpdateTransaction
 from src.app.services.banking.revoke_connection import RevokeConnection
 from src.app.services.banking.start_bank_connection import StartBankConnection
 from src.app.services.banking.sync_account_balance import SyncAccountBalance
@@ -100,6 +102,10 @@ def get_list_transactions(container: Container) -> ListTransactions:
     return container.list_transactions()
 
 
+def get_update_transaction(container: Container) -> UpdateTransaction:
+    return container.update_transaction()
+
+
 def get_sync_transactions(container: Container) -> SyncTransactions:
     return container.sync_transactions()
 
@@ -110,6 +116,10 @@ def get_get_balance(container: Container) -> GetBalance:
 
 def get_sync_account_balance(container: Container) -> SyncAccountBalance:
     return container.sync_account_balance()
+
+
+def get_delete_account(container: Container) -> DeleteAccount:
+    return container.delete_account()
 
 
 def get_list_connections(container: Container) -> ListConnections:

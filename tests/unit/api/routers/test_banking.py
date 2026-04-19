@@ -20,11 +20,13 @@ from src.api.dependencies import (
     get_start_bank_connection,
     get_sync_account_balance,
     get_sync_transactions,
+    get_update_transaction,
 )
 from src.api.main import create_app
 from src.app.exceptions.account_not_found import AccountNotFound
 from src.app.exceptions.connection_session_expired import ConnectionSessionExpired
 from src.app.exceptions.connection_session_not_found import ConnectionSessionNotFound
+from src.app.exceptions.transaction_not_found import TransactionNotFound
 from src.domain.entities.account import Account
 from src.domain.entities.balance import Balance
 from src.domain.entities.connection_session import ConnectionSession
@@ -89,7 +91,7 @@ class StubListTransactions:
         self._transactions = transactions or []
         self._raises = raises
 
-    async def __call__(self, account_id, user_id) -> list[Transaction]:
+    async def __call__(self, account_id, user_id, **kwargs) -> list[Transaction]:
         if self._raises:
             raise self._raises
         return self._transactions
@@ -153,6 +155,21 @@ class _StubDeleteAccount:
             raise self._raises
 
 
+class _StubUpdateTransaction:
+    def __init__(
+        self,
+        transaction: Transaction | None = None,
+        raises: Exception | None = None,
+    ) -> None:
+        self._transaction = transaction
+        self._raises = raises
+
+    async def __call__(self, transaction_id, user_id, **kwargs) -> Transaction:
+        if self._raises:
+            raise self._raises
+        return self._transaction or _make_transaction()
+
+
 class _NoopGetCurrentUser:
     async def __call__(self, token: str) -> User:
         return _USER
@@ -170,6 +187,19 @@ def _make_session() -> ConnectionSession:
         redirect_uri="http://localhost/cb",
         status=ConnectionStatus.CREATED,
         expires_at=datetime(2026, 4, 19, 13, 0, 0, tzinfo=UTC),
+        created_at=_NOW,
+    )
+
+
+def _make_transaction(account_id: UUID | None = None) -> Transaction:
+    return Transaction(
+        id=uuid4(),
+        account_id=account_id or uuid4(),
+        external_id="tx-1",
+        amount=Decimal("-12.50"),
+        currency="EUR",
+        description="Coffee",
+        booked_at=_NOW,
         created_at=_NOW,
     )
 
@@ -204,6 +234,7 @@ def _base_overrides(app) -> None:
     app.dependency_overrides[get_list_connections] = lambda: _StubListConnections()
     app.dependency_overrides[get_revoke_connection] = lambda: _StubRevokeConnection()
     app.dependency_overrides[get_delete_account] = lambda: _StubDeleteAccount()
+    app.dependency_overrides[get_update_transaction] = lambda: _StubUpdateTransaction()
 
 
 def _client_with(**service_overrides) -> TestClient:
@@ -434,5 +465,37 @@ class TestDeleteAccountRoute:
 
     def test_returns_401_without_auth(self) -> None:
         response = _client_no_auth().delete(f"/accounts/{uuid4()}")
+
+        assert response.status_code == 401
+
+
+class TestUpdateTransactionRoute:
+    def test_updates_note(self) -> None:
+        tx = _make_transaction()
+        tx.note = "groceries"
+        app = create_app()
+        _base_overrides(app)
+        app.dependency_overrides[get_current_user] = lambda: _USER
+        app.dependency_overrides[get_update_transaction] = lambda: _StubUpdateTransaction(transaction=tx)
+        client = TestClient(app)
+
+        response = client.patch(f"/transactions/{tx.id}", json={"note": "groceries"})
+
+        assert response.status_code == 200
+        assert response.json()["note"] == "groceries"
+
+    def test_returns_404_when_not_found_or_not_owned(self) -> None:
+        app = create_app()
+        _base_overrides(app)
+        app.dependency_overrides[get_current_user] = lambda: _USER
+        app.dependency_overrides[get_update_transaction] = lambda: _StubUpdateTransaction(raises=TransactionNotFound())
+        client = TestClient(app)
+
+        response = client.patch(f"/transactions/{uuid4()}", json={"note": "x"})
+
+        assert response.status_code == 404
+
+    def test_returns_401_without_auth(self) -> None:
+        response = _client_no_auth().patch(f"/transactions/{uuid4()}", json={"note": "x"})
 
         assert response.status_code == 401

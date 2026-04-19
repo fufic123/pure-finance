@@ -1,3 +1,4 @@
+from datetime import date
 from uuid import UUID
 
 from sqlalchemy import select
@@ -24,12 +25,25 @@ class PostgresTransactionRepository:
         model = (await self._session.execute(stmt)).scalar_one_or_none()
         return self._to_entity(model) if model else None
 
-    async def list_by_account(self, account_id: UUID) -> list[Transaction]:
+    async def list_by_account(
+        self,
+        account_id: UUID,
+        *,
+        from_date: date | None = None,
+        to_date: date | None = None,
+        category_id: UUID | None = None,
+    ) -> list[Transaction]:
         stmt = (
             select(TransactionModel)
             .where(TransactionModel.account_id == account_id)
-            .order_by(TransactionModel.booked_at.desc())
         )
+        if from_date is not None:
+            stmt = stmt.where(TransactionModel.booked_at >= from_date)
+        if to_date is not None:
+            stmt = stmt.where(TransactionModel.booked_at <= to_date)
+        if category_id is not None:
+            stmt = stmt.where(TransactionModel.category_id == category_id)
+        stmt = stmt.order_by(TransactionModel.booked_at.desc())
         models = (await self._session.execute(stmt)).scalars().all()
         return [self._to_entity(m) for m in models]
 

@@ -16,6 +16,7 @@ from src.app.services.categorization_rules.list_rules import ListRules
 from src.app.services.categories.create_category import CreateCategory
 from src.app.services.categories.delete_category import DeleteCategory
 from src.app.services.categories.list_categories import ListCategories
+from src.app.services.banking.delete_account import DeleteAccount
 from src.app.services.banking.finalize_bank_connection import FinalizeBankConnection
 from src.app.services.banking.get_account import GetAccount
 from src.app.services.banking.get_balance import GetBalance
@@ -27,6 +28,7 @@ from src.app.services.banking.revoke_connection import RevokeConnection
 from src.app.services.banking.start_bank_connection import StartBankConnection
 from src.app.services.banking.sync_account_balance import SyncAccountBalance
 from src.app.services.banking.sync_transactions import SyncTransactions
+from src.app.services.banking.update_transaction import UpdateTransaction
 from src.db.session import create_engine, create_session_maker
 from src.db.unit_of_work import SqlAlchemyUnitOfWork
 from src.integrations.auth.google_oauth import GoogleOauthClient
@@ -136,6 +138,9 @@ class AppContainer:
     def list_accounts(self) -> ListAccounts:
         return ListAccounts(uow_factory=self._uow_factory)
 
+    def delete_account(self) -> DeleteAccount:
+        return DeleteAccount(uow_factory=self._uow_factory)
+
     def list_connections(self) -> ListConnections:
         return ListConnections(uow_factory=self._uow_factory)
 
@@ -185,6 +190,9 @@ class AppContainer:
 
     def list_transactions(self) -> ListTransactions:
         return ListTransactions(uow_factory=self._uow_factory)
+
+    def update_transaction(self) -> UpdateTransaction:
+        return UpdateTransaction(uow_factory=self._uow_factory)
 
     def revoke_all_sessions(self) -> RevokeAllSessions:
         return RevokeAllSessions(

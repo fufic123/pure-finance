@@ -2,7 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, Numeric, String
+from sqlalchemy import Boolean, ForeignKey, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from src.db.base import Base
@@ -22,3 +22,7 @@ class TransactionModel(Base):
     description: Mapped[str] = mapped_column(String(1024))
     booked_at: Mapped[datetime]
     created_at: Mapped[datetime]
+    eur_amount: Mapped[Decimal | None] = mapped_column(Numeric(precision=18, scale=4), nullable=True)
+    category_id: Mapped[UUID | None] = mapped_column(nullable=True, index=True)
+    note: Mapped[str | None] = mapped_column(String(2048), nullable=True)
+    manually_categorized: Mapped[bool] = mapped_column(Boolean, default=False, server_default="false")

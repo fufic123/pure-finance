@@ -2,6 +2,7 @@ from types import TracebackType
 
 from src.app.ports.repositories.account_repository import AccountRepository
 from src.app.ports.repositories.balance_repository import BalanceRepository
+from src.app.ports.repositories.categorization_rule_repository import CategorizationRuleRepository
 from src.app.ports.repositories.category_repository import CategoryRepository
 from src.app.ports.repositories.connection_session_repository import ConnectionSessionRepository
 from src.app.ports.repositories.fx_rate_repository import FxRateRepository
@@ -10,6 +11,7 @@ from src.app.ports.repositories.transaction_repository import TransactionReposit
 from src.app.ports.repositories.user_repository import UserRepository
 from tests.fakes.repositories.account_repository import InMemoryAccountRepository
 from tests.fakes.repositories.balance_repository import InMemoryBalanceRepository
+from tests.fakes.repositories.categorization_rule_repository import InMemoryCategorizationRuleRepository
 from tests.fakes.repositories.category_repository import InMemoryCategoryRepository
 from tests.fakes.repositories.connection_session_repository import InMemoryConnectionSessionRepository
 from tests.fakes.repositories.fx_rate_repository import InMemoryFxRateRepository
@@ -27,6 +29,7 @@ class FakeUnitOfWork:
         fx_rates: FxRateRepository | None = None,
         balances: BalanceRepository | None = None,
         categories: CategoryRepository | None = None,
+        categorization_rules: CategorizationRuleRepository | None = None,
     ) -> None:
         self.users = users
         self.refresh_tokens = refresh_tokens
@@ -36,6 +39,7 @@ class FakeUnitOfWork:
         self.fx_rates = fx_rates or InMemoryFxRateRepository()
         self.balances = balances or InMemoryBalanceRepository()
         self.categories = categories or InMemoryCategoryRepository()
+        self.categorization_rules = categorization_rules or InMemoryCategorizationRuleRepository()
 
     async def __aenter__(self) -> "FakeUnitOfWork":
         return self

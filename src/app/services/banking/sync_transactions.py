@@ -5,6 +5,7 @@ from uuid import UUID
 from src.app.ports.clock import Clock
 from src.app.ports.open_banking_provider import OpenBankingProvider
 from src.app.ports.unit_of_work import UnitOfWork
+from src.domain.entities.categorization_rule import CategorizationRule
 from src.domain.entities.transaction import Transaction
 
 
@@ -19,12 +20,13 @@ class SyncTransactions:
         self._clock = clock
         self._provider = provider
 
-    async def __call__(self, account_id: UUID, account_external_id: str) -> int:
+    async def __call__(self, account_id: UUID, account_external_id: str, user_id: UUID) -> int:
         infos = await self._provider.list_transactions(account_external_id)
         now = self._clock.now()
         added = 0
 
         async with self._uow_factory() as uow:
+            rules = await uow.categorization_rules.list_by_user(user_id)
             for info in infos:
                 existing = await uow.transactions.get_by_external_id(info.external_id)
                 if existing is not None:
@@ -40,6 +42,7 @@ class SyncTransactions:
                     now=now,
                 )
                 transaction.eur_amount = eur_amount
+                _apply_rules(transaction, rules)
                 await uow.transactions.add(transaction)
                 added += 1
 
@@ -53,3 +56,10 @@ class SyncTransactions:
         if rate is None:
             return None
         return (amount / rate).quantize(Decimal("0.0001"))
+
+
+def _apply_rules(transaction: Transaction, rules: list[CategorizationRule]) -> None:
+    for rule in rules:
+        if rule.matches(transaction.description):
+            transaction.categorize(rule.category_id, manually=False)
+            return

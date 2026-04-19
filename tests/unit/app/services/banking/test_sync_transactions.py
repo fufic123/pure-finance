@@ -6,8 +6,10 @@ import pytest
 
 from src.app.dtos.transaction_info import TransactionInfo
 from src.app.services.banking.sync_transactions import SyncTransactions
+from src.domain.entities.categorization_rule import CategorizationRule
 from tests.fakes.clock import FixedClock
 from tests.fakes.open_banking_provider import FakeOpenBankingProvider
+from tests.fakes.repositories.categorization_rule_repository import InMemoryCategorizationRuleRepository
 from tests.fakes.repositories.fx_rate_repository import InMemoryFxRateRepository
 from tests.fakes.repositories.refresh_token_repository import InMemoryRefreshTokenRepository
 from tests.fakes.repositories.transaction_repository import InMemoryTransactionRepository
@@ -23,6 +25,7 @@ def _make_service(
     provider: FakeOpenBankingProvider | None = None,
     transactions: InMemoryTransactionRepository | None = None,
     fx_rates: InMemoryFxRateRepository | None = None,
+    categorization_rules: InMemoryCategorizationRuleRepository | None = None,
 ) -> tuple[SyncTransactions, InMemoryTransactionRepository]:
     transactions = transactions or InMemoryTransactionRepository()
     uow = FakeUnitOfWork(
@@ -30,6 +33,7 @@ def _make_service(
         refresh_tokens=InMemoryRefreshTokenRepository(),
         transactions=transactions,
         fx_rates=fx_rates or InMemoryFxRateRepository(),
+        categorization_rules=categorization_rules or InMemoryCategorizationRuleRepository(),
     )
     service = SyncTransactions(
         uow_factory=lambda: uow,
@@ -63,7 +67,7 @@ class TestSyncTransactions:
         service, repo = _make_service(provider=provider)
         account_id = uuid4()
 
-        added = await service(account_id=account_id, account_external_id="acc-ext-1")
+        added = await service(account_id=account_id, account_external_id="acc-ext-1", user_id=uuid4())
 
         assert added == 2
         stored = await repo.list_by_account(account_id)
@@ -85,9 +89,10 @@ class TestSyncTransactions:
         )
         service, _ = _make_service(provider=provider, transactions=repo)
         account_id = uuid4()
+        user_id = uuid4()
 
-        await service(account_id=account_id, account_external_id="acc-ext-1")
-        added = await service(account_id=account_id, account_external_id="acc-ext-1")
+        await service(account_id=account_id, account_external_id="acc-ext-1", user_id=user_id)
+        added = await service(account_id=account_id, account_external_id="acc-ext-1", user_id=user_id)
 
         assert added == 0
         stored = await repo.list_by_account(account_id)
@@ -97,7 +102,7 @@ class TestSyncTransactions:
     async def test_returns_zero_when_no_transactions(self) -> None:
         service, _ = _make_service()
 
-        added = await service(account_id=uuid4(), account_external_id="acc-ext-1")
+        added = await service(account_id=uuid4(), account_external_id="acc-ext-1", user_id=uuid4())
 
         assert added == 0
 
@@ -116,7 +121,7 @@ class TestSyncTransactions:
         )
         service, repo = _make_service(provider=provider)
 
-        await service(account_id=(aid := uuid4()), account_external_id="acc-1")
+        await service(account_id=(aid := uuid4()), account_external_id="acc-1", user_id=uuid4())
 
         stored = await repo.list_by_account(aid)
         assert stored[0].eur_amount == Decimal("50.00")
@@ -137,7 +142,7 @@ class TestSyncTransactions:
         )
         service, repo = _make_service(provider=provider, fx_rates=rates)
 
-        await service(account_id=(aid := uuid4()), account_external_id="acc-1")
+        await service(account_id=(aid := uuid4()), account_external_id="acc-1", user_id=uuid4())
 
         stored = await repo.list_by_account(aid)
         assert stored[0].eur_amount == Decimal("100.0000")
@@ -157,7 +162,38 @@ class TestSyncTransactions:
         )
         service, repo = _make_service(provider=provider)
 
-        await service(account_id=(aid := uuid4()), account_external_id="acc-1")
+        await service(account_id=(aid := uuid4()), account_external_id="acc-1", user_id=uuid4())
 
         stored = await repo.list_by_account(aid)
         assert stored[0].eur_amount is None
+
+    @pytest.mark.asyncio
+    async def test_applies_categorization_rule_on_new_transaction(self) -> None:
+        user_id = uuid4()
+        cat_id = uuid4()
+        rule = CategorizationRule(
+            id=uuid4(),
+            user_id=user_id,
+            category_id=cat_id,
+            keyword="starbucks",
+            created_at=_NOW,
+        )
+        rules = InMemoryCategorizationRuleRepository([rule])
+        provider = FakeOpenBankingProvider(
+            transactions=[
+                TransactionInfo(
+                    external_id="tx-cafe",
+                    amount=Decimal("-4.50"),
+                    currency="EUR",
+                    description="Payment to Starbucks",
+                    booked_at=_BOOKED,
+                )
+            ]
+        )
+        service, repo = _make_service(provider=provider, categorization_rules=rules)
+
+        await service(account_id=(aid := uuid4()), account_external_id="acc-1", user_id=user_id)
+
+        stored = await repo.list_by_account(aid)
+        assert stored[0].category_id == cat_id
+        assert stored[0].manually_categorized is False

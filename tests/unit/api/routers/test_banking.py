@@ -107,7 +107,7 @@ class StubSyncTransactions:
     def __init__(self, added: int = 0) -> None:
         self._added = added
 
-    async def __call__(self, account_id, account_external_id) -> int:
+    async def __call__(self, account_id, account_external_id, user_id) -> int:
         return self._added
 
 

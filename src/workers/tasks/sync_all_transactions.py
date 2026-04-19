@@ -27,6 +27,7 @@ async def _sync() -> None:
                 added = await sync(
                     account_id=account.id,
                     account_external_id=account.external_id,
+                    user_id=account.user_id,
                 )
                 await sync_balance(account_id=account.id, account_external_id=account.external_id)
                 logger.info("synced account %s: %d new transactions", account.id, added)

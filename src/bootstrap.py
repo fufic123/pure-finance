@@ -10,6 +10,9 @@ from src.app.services.auth.refresh_tokens import RefreshTokens
 from src.app.services.auth.revoke_all_sessions import RevokeAllSessions
 from src.app.services.auth.start_google_auth import StartGoogleAuth
 from src.app.services.banking.fetch_fx_rates import FetchFxRates
+from src.app.services.categorization_rules.create_rule import CreateRule
+from src.app.services.categorization_rules.delete_rule import DeleteRule
+from src.app.services.categorization_rules.list_rules import ListRules
 from src.app.services.categories.create_category import CreateCategory
 from src.app.services.categories.delete_category import DeleteCategory
 from src.app.services.categories.list_categories import ListCategories
@@ -140,6 +143,15 @@ class AppContainer:
             clock=self._clock,
             provider=self._gocardless,
         )
+
+    def list_rules(self) -> ListRules:
+        return ListRules(uow_factory=self._uow_factory)
+
+    def create_rule(self) -> CreateRule:
+        return CreateRule(uow_factory=self._uow_factory, clock=self._clock)
+
+    def delete_rule(self) -> DeleteRule:
+        return DeleteRule(uow_factory=self._uow_factory)
 
     def list_categories(self) -> ListCategories:
         return ListCategories(uow_factory=self._uow_factory)

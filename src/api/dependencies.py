@@ -19,6 +19,9 @@ from src.app.services.banking.list_transactions import ListTransactions
 from src.app.services.banking.start_bank_connection import StartBankConnection
 from src.app.services.banking.sync_account_balance import SyncAccountBalance
 from src.app.services.banking.sync_transactions import SyncTransactions
+from src.app.services.categorization_rules.create_rule import CreateRule
+from src.app.services.categorization_rules.delete_rule import DeleteRule
+from src.app.services.categorization_rules.list_rules import ListRules
 from src.app.services.categories.create_category import CreateCategory
 from src.app.services.categories.delete_category import DeleteCategory
 from src.app.services.categories.list_categories import ListCategories
@@ -117,6 +120,18 @@ def get_create_category(container: Container) -> CreateCategory:
 
 def get_delete_category(container: Container) -> DeleteCategory:
     return container.delete_category()
+
+
+def get_list_rules(container: Container) -> ListRules:
+    return container.list_rules()
+
+
+def get_create_rule(container: Container) -> CreateRule:
+    return container.create_rule()
+
+
+def get_delete_rule(container: Container) -> DeleteRule:
+    return container.delete_rule()
 
 
 async def get_current_user(

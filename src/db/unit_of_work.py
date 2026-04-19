@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from src.app.ports.repositories.account_repository import AccountRepository
 from src.app.ports.repositories.balance_repository import BalanceRepository
+from src.app.ports.repositories.categorization_rule_repository import CategorizationRuleRepository
 from src.app.ports.repositories.category_repository import CategoryRepository
 from src.app.ports.repositories.connection_session_repository import ConnectionSessionRepository
 from src.app.ports.repositories.fx_rate_repository import FxRateRepository
@@ -12,6 +13,7 @@ from src.app.ports.repositories.transaction_repository import TransactionReposit
 from src.app.ports.repositories.user_repository import UserRepository
 from src.db.repositories.account_repository import PostgresAccountRepository
 from src.db.repositories.balance_repository import PostgresBalanceRepository
+from src.db.repositories.categorization_rule_repository import PostgresCategorizationRuleRepository
 from src.db.repositories.category_repository import PostgresCategoryRepository
 from src.db.repositories.connection_session_repository import PostgresConnectionSessionRepository
 from src.db.repositories.fx_rate_repository import PostgresFxRateRepository
@@ -29,6 +31,7 @@ class SqlAlchemyUnitOfWork:
     fx_rates: FxRateRepository
     balances: BalanceRepository
     categories: CategoryRepository
+    categorization_rules: CategorizationRuleRepository
 
     def __init__(self, session_maker: async_sessionmaker[AsyncSession]) -> None:
         self._session_maker = session_maker
@@ -44,6 +47,7 @@ class SqlAlchemyUnitOfWork:
         self.fx_rates = PostgresFxRateRepository(self._session)
         self.balances = PostgresBalanceRepository(self._session)
         self.categories = PostgresCategoryRepository(self._session)
+        self.categorization_rules = PostgresCategorizationRuleRepository(self._session)
         return self
 
     async def __aexit__(

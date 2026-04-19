@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 from src.api.dependencies import (
     get_current_user,
     get_current_user_service,
+    get_delete_account,
     get_finalize_bank_connection,
     get_get_account,
     get_get_balance,
@@ -143,6 +144,15 @@ class _StubRevokeConnection:
         pass
 
 
+class _StubDeleteAccount:
+    def __init__(self, raises: Exception | None = None) -> None:
+        self._raises = raises
+
+    async def __call__(self, account_id, user_id) -> None:
+        if self._raises:
+            raise self._raises
+
+
 class _NoopGetCurrentUser:
     async def __call__(self, token: str) -> User:
         return _USER
@@ -193,6 +203,7 @@ def _base_overrides(app) -> None:
     app.dependency_overrides[get_get_balance] = lambda: StubGetBalance()
     app.dependency_overrides[get_list_connections] = lambda: _StubListConnections()
     app.dependency_overrides[get_revoke_connection] = lambda: _StubRevokeConnection()
+    app.dependency_overrides[get_delete_account] = lambda: _StubDeleteAccount()
 
 
 def _client_with(**service_overrides) -> TestClient:
@@ -394,5 +405,34 @@ class TestGetAccountBalanceRoute:
 
     def test_returns_401_without_auth(self) -> None:
         response = _client_no_auth().get(f"/accounts/{uuid4()}/balance")
+
+        assert response.status_code == 401
+
+
+class TestDeleteAccountRoute:
+    def test_deletes_account(self) -> None:
+        account_id = uuid4()
+        app = create_app()
+        _base_overrides(app)
+        app.dependency_overrides[get_current_user] = lambda: _USER
+        client = TestClient(app)
+
+        response = client.delete(f"/accounts/{account_id}")
+
+        assert response.status_code == 204
+
+    def test_returns_404_when_account_not_owned(self) -> None:
+        app = create_app()
+        _base_overrides(app)
+        app.dependency_overrides[get_current_user] = lambda: _USER
+        app.dependency_overrides[get_delete_account] = lambda: _StubDeleteAccount(raises=AccountNotFound())
+        client = TestClient(app)
+
+        response = client.delete(f"/accounts/{uuid4()}")
+
+        assert response.status_code == 404
+
+    def test_returns_401_without_auth(self) -> None:
+        response = _client_no_auth().delete(f"/accounts/{uuid4()}")
 
         assert response.status_code == 401

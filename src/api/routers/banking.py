@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends
 
 from src.api.dependencies import (
     get_current_user,
+    get_delete_account,
     get_finalize_bank_connection,
     get_get_account,
     get_get_balance,
@@ -24,6 +25,7 @@ from src.api.dtos.institution_response import InstitutionResponse
 from src.api.dtos.start_connection_request import StartConnectionRequest
 from src.api.dtos.start_connection_response import StartConnectionResponse
 from src.api.dtos.transaction_response import TransactionResponse
+from src.app.services.banking.delete_account import DeleteAccount
 from src.app.services.banking.finalize_bank_connection import FinalizeBankConnection
 from src.app.services.banking.get_account import GetAccount
 from src.app.services.banking.get_balance import GetBalance
@@ -108,6 +110,15 @@ async def list_accounts(
 ) -> list[AccountResponse]:
     accounts = await service(user.id)
     return [AccountResponse.from_account(a) for a in accounts]
+
+
+@router.delete("/accounts/{account_id}", status_code=204)
+async def delete_account(
+    account_id: UUID,
+    user: Annotated[User, Depends(get_current_user)],
+    service: Annotated[DeleteAccount, Depends(get_delete_account)],
+) -> None:
+    await service(account_id=account_id, user_id=user.id)
 
 
 @router.post("/accounts/{account_id}/sync", status_code=200)

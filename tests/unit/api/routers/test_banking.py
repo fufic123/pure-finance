@@ -8,17 +8,22 @@ from src.api.dependencies import (
     get_current_user,
     get_current_user_service,
     get_finalize_bank_connection,
+    get_get_account,
+    get_get_balance,
     get_list_accounts,
     get_list_institutions,
     get_list_transactions,
     get_rate_limiter,
     get_start_bank_connection,
+    get_sync_account_balance,
+    get_sync_transactions,
 )
 from src.api.main import create_app
 from src.app.exceptions.account_not_found import AccountNotFound
 from src.app.exceptions.connection_session_expired import ConnectionSessionExpired
 from src.app.exceptions.connection_session_not_found import ConnectionSessionNotFound
 from src.domain.entities.account import Account
+from src.domain.entities.balance import Balance
 from src.domain.entities.connection_session import ConnectionSession
 from src.domain.entities.institution import Institution
 from src.domain.entities.transaction import Transaction
@@ -87,6 +92,45 @@ class StubListTransactions:
         return self._transactions
 
 
+class StubGetAccount:
+    def __init__(self, account: Account | None = None, raises: Exception | None = None) -> None:
+        self._account = account
+        self._raises = raises
+
+    async def __call__(self, account_id, user_id) -> Account:
+        if self._raises:
+            raise self._raises
+        return self._account or _make_account(user_id=user_id)
+
+
+class StubSyncTransactions:
+    def __init__(self, added: int = 0) -> None:
+        self._added = added
+
+    async def __call__(self, account_id, account_external_id) -> int:
+        return self._added
+
+
+class StubSyncAccountBalance:
+    async def __call__(self, account_id, account_external_id) -> bool:
+        return True
+
+
+class StubGetBalance:
+    def __init__(
+        self,
+        balance: Balance | None = None,
+        raises: Exception | None = None,
+    ) -> None:
+        self._balance = balance
+        self._raises = raises
+
+    async def __call__(self, account_id, user_id) -> Balance | None:
+        if self._raises:
+            raise self._raises
+        return self._balance
+
+
 class _NoopGetCurrentUser:
     async def __call__(self, token: str) -> User:
         return _USER
@@ -130,6 +174,10 @@ def _base_overrides(app) -> None:
     app.dependency_overrides[get_finalize_bank_connection] = lambda: StubFinalizeBankConnection()
     app.dependency_overrides[get_list_accounts] = lambda: StubListAccounts()
     app.dependency_overrides[get_list_transactions] = lambda: StubListTransactions()
+    app.dependency_overrides[get_get_account] = lambda: StubGetAccount()
+    app.dependency_overrides[get_sync_transactions] = lambda: StubSyncTransactions()
+    app.dependency_overrides[get_sync_account_balance] = lambda: StubSyncAccountBalance()
+    app.dependency_overrides[get_get_balance] = lambda: StubGetBalance()
 
 
 def _client_with(**service_overrides) -> TestClient:
@@ -140,6 +188,10 @@ def _client_with(**service_overrides) -> TestClient:
         "finalize": get_finalize_bank_connection,
         "accounts": get_list_accounts,
         "transactions": get_list_transactions,
+        "get_account": get_get_account,
+        "sync": get_sync_transactions,
+        "sync_balance": get_sync_account_balance,
+        "balance": get_get_balance,
     }
     app = create_app()
     _base_overrides(app)
@@ -288,5 +340,44 @@ class TestListTransactionsRoute:
 
     def test_returns_401_without_auth(self) -> None:
         response = _client_no_auth().get(f"/accounts/{uuid4()}/transactions")
+
+        assert response.status_code == 401
+
+
+class TestGetAccountBalanceRoute:
+    def test_returns_balance(self) -> None:
+        account = _make_account()
+        balance = Balance(
+            account_id=account.id,
+            amount=Decimal("1234.56"),
+            currency="EUR",
+            updated_at=_NOW,
+        )
+        client = _client_with(balance=StubGetBalance(balance=balance))
+
+        response = client.get(f"/accounts/{account.id}/balance")
+
+        assert response.status_code == 200
+        data = response.json()
+        assert Decimal(str(data["amount"])) == Decimal("1234.56")
+        assert data["currency"] == "EUR"
+
+    def test_returns_null_when_no_balance(self) -> None:
+        client = _client_with(balance=StubGetBalance(balance=None))
+
+        response = client.get(f"/accounts/{uuid4()}/balance")
+
+        assert response.status_code == 200
+        assert response.json() is None
+
+    def test_returns_404_when_account_not_owned(self) -> None:
+        client = _client_with(balance=StubGetBalance(raises=AccountNotFound()))
+
+        response = client.get(f"/accounts/{uuid4()}/balance")
+
+        assert response.status_code == 404
+
+    def test_returns_401_without_auth(self) -> None:
+        response = _client_no_auth().get(f"/accounts/{uuid4()}/balance")
 
         assert response.status_code == 401

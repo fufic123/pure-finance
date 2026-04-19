@@ -12,10 +12,12 @@ from src.app.services.auth.refresh_tokens import RefreshTokens
 from src.app.services.auth.start_google_auth import StartGoogleAuth
 from src.app.services.banking.finalize_bank_connection import FinalizeBankConnection
 from src.app.services.banking.get_account import GetAccount
+from src.app.services.banking.get_balance import GetBalance
 from src.app.services.banking.list_accounts import ListAccounts
 from src.app.services.banking.list_institutions import ListInstitutions
 from src.app.services.banking.list_transactions import ListTransactions
 from src.app.services.banking.start_bank_connection import StartBankConnection
+from src.app.services.banking.sync_account_balance import SyncAccountBalance
 from src.app.services.banking.sync_transactions import SyncTransactions
 from src.bootstrap import AppContainer
 from src.domain.entities.user import User
@@ -92,6 +94,14 @@ def get_list_transactions(container: Container) -> ListTransactions:
 
 def get_sync_transactions(container: Container) -> SyncTransactions:
     return container.sync_transactions()
+
+
+def get_get_balance(container: Container) -> GetBalance:
+    return container.get_balance()
+
+
+def get_sync_account_balance(container: Container) -> SyncAccountBalance:
+    return container.sync_account_balance()
 
 
 async def get_current_user(

@@ -7,23 +7,28 @@ from src.api.dependencies import (
     get_current_user,
     get_finalize_bank_connection,
     get_get_account,
+    get_get_balance,
     get_list_accounts,
     get_list_institutions,
     get_list_transactions,
     get_start_bank_connection,
+    get_sync_account_balance,
     get_sync_transactions,
 )
 from src.api.dtos.account_response import AccountResponse
+from src.api.dtos.balance_response import BalanceResponse
 from src.api.dtos.institution_response import InstitutionResponse
 from src.api.dtos.start_connection_request import StartConnectionRequest
 from src.api.dtos.start_connection_response import StartConnectionResponse
 from src.api.dtos.transaction_response import TransactionResponse
 from src.app.services.banking.finalize_bank_connection import FinalizeBankConnection
+from src.app.services.banking.get_account import GetAccount
+from src.app.services.banking.get_balance import GetBalance
 from src.app.services.banking.list_accounts import ListAccounts
 from src.app.services.banking.list_institutions import ListInstitutions
-from src.app.services.banking.get_account import GetAccount
 from src.app.services.banking.list_transactions import ListTransactions
 from src.app.services.banking.start_bank_connection import StartBankConnection
+from src.app.services.banking.sync_account_balance import SyncAccountBalance
 from src.app.services.banking.sync_transactions import SyncTransactions
 from src.domain.entities.user import User
 
@@ -88,10 +93,22 @@ async def sync_account(
     user: Annotated[User, Depends(get_current_user)],
     get_acct: Annotated[GetAccount, Depends(get_get_account)],
     sync: Annotated[SyncTransactions, Depends(get_sync_transactions)],
+    sync_balance: Annotated[SyncAccountBalance, Depends(get_sync_account_balance)],
 ) -> dict:
     account = await get_acct(account_id=account_id, user_id=user.id)
     added = await sync(account_id=account.id, account_external_id=account.external_id)
+    await sync_balance(account_id=account.id, account_external_id=account.external_id)
     return {"added": added}
+
+
+@router.get("/accounts/{account_id}/balance", response_model=BalanceResponse | None)
+async def get_account_balance(
+    account_id: UUID,
+    user: Annotated[User, Depends(get_current_user)],
+    service: Annotated[GetBalance, Depends(get_get_balance)],
+) -> BalanceResponse | None:
+    balance = await service(account_id=account_id, user_id=user.id)
+    return BalanceResponse.from_balance(balance) if balance else None
 
 
 @router.get("/accounts/{account_id}/transactions", response_model=list[TransactionResponse])

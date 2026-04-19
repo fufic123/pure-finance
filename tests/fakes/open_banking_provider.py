@@ -1,3 +1,4 @@
+from src.app.dtos.balance_info import BalanceInfo
 from src.app.dtos.bank_account_info import BankAccountInfo
 from src.app.dtos.institution_info import InstitutionInfo
 from src.app.dtos.requisition_info import RequisitionInfo
@@ -11,6 +12,7 @@ class FakeOpenBankingProvider:
         requisition: RequisitionInfo | None = None,
         accounts: list[BankAccountInfo] | None = None,
         transactions: list[TransactionInfo] | None = None,
+        balance: BalanceInfo | None = None,
     ) -> None:
         self._institutions = institutions or []
         self._requisition = requisition or RequisitionInfo(
@@ -19,6 +21,7 @@ class FakeOpenBankingProvider:
         )
         self._accounts = accounts or []
         self._transactions = transactions or []
+        self._balance = balance
 
     async def list_institutions(self, country: str) -> list[InstitutionInfo]:
         return self._institutions
@@ -36,3 +39,6 @@ class FakeOpenBankingProvider:
 
     async def list_transactions(self, account_external_id: str) -> list[TransactionInfo]:
         return self._transactions
+
+    async def get_balance(self, account_external_id: str) -> BalanceInfo | None:
+        return self._balance

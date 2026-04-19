@@ -12,10 +12,12 @@ from src.app.services.auth.start_google_auth import StartGoogleAuth
 from src.app.services.banking.fetch_fx_rates import FetchFxRates
 from src.app.services.banking.finalize_bank_connection import FinalizeBankConnection
 from src.app.services.banking.get_account import GetAccount
+from src.app.services.banking.get_balance import GetBalance
 from src.app.services.banking.list_accounts import ListAccounts
 from src.app.services.banking.list_institutions import ListInstitutions
 from src.app.services.banking.list_transactions import ListTransactions
 from src.app.services.banking.start_bank_connection import StartBankConnection
+from src.app.services.banking.sync_account_balance import SyncAccountBalance
 from src.app.services.banking.sync_transactions import SyncTransactions
 from src.db.session import create_engine, create_session_maker
 from src.db.unit_of_work import SqlAlchemyUnitOfWork
@@ -125,6 +127,16 @@ class AppContainer:
 
     def list_accounts(self) -> ListAccounts:
         return ListAccounts(uow_factory=self._uow_factory)
+
+    def get_balance(self) -> GetBalance:
+        return GetBalance(uow_factory=self._uow_factory)
+
+    def sync_account_balance(self) -> SyncAccountBalance:
+        return SyncAccountBalance(
+            uow_factory=self._uow_factory,
+            clock=self._clock,
+            provider=self._gocardless,
+        )
 
     def fetch_fx_rates(self) -> FetchFxRates:
         return FetchFxRates(

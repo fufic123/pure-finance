@@ -2,6 +2,7 @@ from types import TracebackType
 from typing import Protocol
 
 from src.app.ports.repositories.account_repository import AccountRepository
+from src.app.ports.repositories.balance_repository import BalanceRepository
 from src.app.ports.repositories.connection_session_repository import ConnectionSessionRepository
 from src.app.ports.repositories.fx_rate_repository import FxRateRepository
 from src.app.ports.repositories.refresh_token_repository import RefreshTokenRepository
@@ -16,6 +17,7 @@ class UnitOfWork(Protocol):
     connection_sessions: ConnectionSessionRepository
     transactions: TransactionRepository
     fx_rates: FxRateRepository
+    balances: BalanceRepository
 
     async def __aenter__(self) -> "UnitOfWork": ...
 

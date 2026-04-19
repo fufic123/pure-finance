@@ -1,12 +1,14 @@
 from types import TracebackType
 
 from src.app.ports.repositories.account_repository import AccountRepository
+from src.app.ports.repositories.balance_repository import BalanceRepository
 from src.app.ports.repositories.connection_session_repository import ConnectionSessionRepository
 from src.app.ports.repositories.fx_rate_repository import FxRateRepository
 from src.app.ports.repositories.refresh_token_repository import RefreshTokenRepository
 from src.app.ports.repositories.transaction_repository import TransactionRepository
 from src.app.ports.repositories.user_repository import UserRepository
 from tests.fakes.repositories.account_repository import InMemoryAccountRepository
+from tests.fakes.repositories.balance_repository import InMemoryBalanceRepository
 from tests.fakes.repositories.connection_session_repository import InMemoryConnectionSessionRepository
 from tests.fakes.repositories.fx_rate_repository import InMemoryFxRateRepository
 from tests.fakes.repositories.transaction_repository import InMemoryTransactionRepository
@@ -21,6 +23,7 @@ class FakeUnitOfWork:
         connection_sessions: ConnectionSessionRepository | None = None,
         transactions: TransactionRepository | None = None,
         fx_rates: FxRateRepository | None = None,
+        balances: BalanceRepository | None = None,
     ) -> None:
         self.users = users
         self.refresh_tokens = refresh_tokens
@@ -28,6 +31,7 @@ class FakeUnitOfWork:
         self.connection_sessions = connection_sessions or InMemoryConnectionSessionRepository()
         self.transactions = transactions or InMemoryTransactionRepository()
         self.fx_rates = fx_rates or InMemoryFxRateRepository()
+        self.balances = balances or InMemoryBalanceRepository()
 
     async def __aenter__(self) -> "FakeUnitOfWork":
         return self

@@ -4,6 +4,7 @@ from decimal import Decimal
 import httpx
 from redis.asyncio import Redis
 
+from src.app.dtos.balance_info import BalanceInfo
 from src.app.dtos.bank_account_info import BankAccountInfo
 from src.app.dtos.institution_info import InstitutionInfo
 from src.app.dtos.requisition_info import RequisitionInfo
@@ -115,6 +116,23 @@ class GoCardlessClient:
             for t in booked
             if "transactionId" in t
         ]
+
+    async def get_balance(self, account_external_id: str) -> BalanceInfo | None:
+        token = await self._get_token()
+        response = await self._http.get(
+            f"{self._BASE_URL}/accounts/{account_external_id}/balances/",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        response.raise_for_status()
+        balances: list[dict] = response.json().get("balances", [])
+        preferred = next(
+            (b for b in balances if b.get("balanceType") == "interimAvailable"),
+            balances[0] if balances else None,
+        )
+        if preferred is None:
+            return None
+        ba = preferred["balanceAmount"]
+        return BalanceInfo(amount=Decimal(ba["amount"]), currency=ba["currency"])
 
     async def _get_token(self) -> str:
         cached = await self._redis.get(_CACHE_KEY)

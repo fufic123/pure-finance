@@ -10,6 +10,9 @@ from src.app.services.auth.refresh_tokens import RefreshTokens
 from src.app.services.auth.revoke_all_sessions import RevokeAllSessions
 from src.app.services.auth.start_google_auth import StartGoogleAuth
 from src.app.services.banking.fetch_fx_rates import FetchFxRates
+from src.app.services.categories.create_category import CreateCategory
+from src.app.services.categories.delete_category import DeleteCategory
+from src.app.services.categories.list_categories import ListCategories
 from src.app.services.banking.finalize_bank_connection import FinalizeBankConnection
 from src.app.services.banking.get_account import GetAccount
 from src.app.services.banking.get_balance import GetBalance
@@ -137,6 +140,15 @@ class AppContainer:
             clock=self._clock,
             provider=self._gocardless,
         )
+
+    def list_categories(self) -> ListCategories:
+        return ListCategories(uow_factory=self._uow_factory)
+
+    def create_category(self) -> CreateCategory:
+        return CreateCategory(uow_factory=self._uow_factory, clock=self._clock)
+
+    def delete_category(self) -> DeleteCategory:
+        return DeleteCategory(uow_factory=self._uow_factory)
 
     def fetch_fx_rates(self) -> FetchFxRates:
         return FetchFxRates(

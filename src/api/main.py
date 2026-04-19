@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.api.response_handlers.install import install_handlers
 from src.api.routers.auth import router as auth_router
 from src.api.routers.banking import router as banking_router
+from src.api.routers.categories import router as categories_router
 from src.api.routers.health import router as health_router
 from src.shared.env import Settings
 
@@ -21,6 +22,7 @@ def create_app(allow_origins: list[str] | None = None) -> FastAPI:
     install_handlers(app)
     app.include_router(auth_router)
     app.include_router(banking_router)
+    app.include_router(categories_router)
     app.include_router(health_router)
     return app
 

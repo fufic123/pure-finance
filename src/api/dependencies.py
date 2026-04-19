@@ -19,6 +19,9 @@ from src.app.services.banking.list_transactions import ListTransactions
 from src.app.services.banking.start_bank_connection import StartBankConnection
 from src.app.services.banking.sync_account_balance import SyncAccountBalance
 from src.app.services.banking.sync_transactions import SyncTransactions
+from src.app.services.categories.create_category import CreateCategory
+from src.app.services.categories.delete_category import DeleteCategory
+from src.app.services.categories.list_categories import ListCategories
 from src.bootstrap import AppContainer
 from src.domain.entities.user import User
 from src.shared.env import Settings
@@ -102,6 +105,18 @@ def get_get_balance(container: Container) -> GetBalance:
 
 def get_sync_account_balance(container: Container) -> SyncAccountBalance:
     return container.sync_account_balance()
+
+
+def get_list_categories(container: Container) -> ListCategories:
+    return container.list_categories()
+
+
+def get_create_category(container: Container) -> CreateCategory:
+    return container.create_category()
+
+
+def get_delete_category(container: Container) -> DeleteCategory:
+    return container.delete_category()
 
 
 async def get_current_user(

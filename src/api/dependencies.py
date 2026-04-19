@@ -17,6 +17,8 @@ from src.app.services.banking.get_balance import GetBalance
 from src.app.services.banking.list_accounts import ListAccounts
 from src.app.services.banking.list_connections import ListConnections
 from src.app.services.banking.list_institutions import ListInstitutions
+from src.app.services.analytics.get_by_category import GetAnalyticsByCategory
+from src.app.services.analytics.get_summary import GetAnalyticsSummary
 from src.app.services.banking.list_transactions import ListTransactions
 from src.app.services.banking.update_transaction import UpdateTransaction
 from src.app.services.banking.revoke_connection import RevokeConnection
@@ -104,6 +106,14 @@ def get_list_transactions(container: Container) -> ListTransactions:
 
 def get_update_transaction(container: Container) -> UpdateTransaction:
     return container.update_transaction()
+
+
+def get_analytics_summary(container: Container) -> GetAnalyticsSummary:
+    return container.analytics_summary()
+
+
+def get_analytics_by_category(container: Container) -> GetAnalyticsByCategory:
+    return container.analytics_by_category()
 
 
 def get_sync_transactions(container: Container) -> SyncTransactions:

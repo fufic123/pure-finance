@@ -47,6 +47,27 @@ class PostgresTransactionRepository:
         models = (await self._session.execute(stmt)).scalars().all()
         return [self._to_entity(m) for m in models]
 
+    async def list_by_accounts(
+        self,
+        account_ids: list[UUID],
+        *,
+        from_date: date | None = None,
+        to_date: date | None = None,
+    ) -> list[Transaction]:
+        if not account_ids:
+            return []
+        stmt = (
+            select(TransactionModel)
+            .where(TransactionModel.account_id.in_(account_ids))
+        )
+        if from_date is not None:
+            stmt = stmt.where(TransactionModel.booked_at >= from_date)
+        if to_date is not None:
+            stmt = stmt.where(TransactionModel.booked_at <= to_date)
+        stmt = stmt.order_by(TransactionModel.booked_at.desc())
+        models = (await self._session.execute(stmt)).scalars().all()
+        return [self._to_entity(m) for m in models]
+
     async def update(self, transaction: Transaction) -> None:
         stmt = select(TransactionModel).where(TransactionModel.id == transaction.id)
         model = (await self._session.execute(stmt)).scalar_one()

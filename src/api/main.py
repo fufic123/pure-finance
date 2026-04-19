@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.response_handlers.install import install_handlers
+from src.api.routers.analytics import router as analytics_router
 from src.api.routers.auth import router as auth_router
 from src.api.routers.banking import router as banking_router
 from src.api.routers.categorization_rules import router as rules_router
@@ -22,6 +23,7 @@ def create_app(allow_origins: list[str] | None = None) -> FastAPI:
         )
     install_handlers(app)
     app.include_router(auth_router)
+    app.include_router(analytics_router)
     app.include_router(banking_router)
     app.include_router(categories_router)
     app.include_router(rules_router)

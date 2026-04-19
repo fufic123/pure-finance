@@ -28,6 +28,8 @@ from src.app.services.banking.revoke_connection import RevokeConnection
 from src.app.services.banking.start_bank_connection import StartBankConnection
 from src.app.services.banking.sync_account_balance import SyncAccountBalance
 from src.app.services.banking.sync_transactions import SyncTransactions
+from src.app.services.analytics.get_by_category import GetAnalyticsByCategory
+from src.app.services.analytics.get_summary import GetAnalyticsSummary
 from src.app.services.banking.update_transaction import UpdateTransaction
 from src.db.session import create_engine, create_session_maker
 from src.db.unit_of_work import SqlAlchemyUnitOfWork
@@ -193,6 +195,12 @@ class AppContainer:
 
     def update_transaction(self) -> UpdateTransaction:
         return UpdateTransaction(uow_factory=self._uow_factory)
+
+    def analytics_summary(self) -> GetAnalyticsSummary:
+        return GetAnalyticsSummary(uow_factory=self._uow_factory)
+
+    def analytics_by_category(self) -> GetAnalyticsByCategory:
+        return GetAnalyticsByCategory(uow_factory=self._uow_factory)
 
     def revoke_all_sessions(self) -> RevokeAllSessions:
         return RevokeAllSessions(

@@ -21,4 +21,12 @@ class TransactionRepository(Protocol):
         category_id: UUID | None = None,
     ) -> list[Transaction]: ...
 
+    async def list_by_accounts(
+        self,
+        account_ids: list[UUID],
+        *,
+        from_date: date | None = None,
+        to_date: date | None = None,
+    ) -> list[Transaction]: ...
+
     async def update(self, transaction: Transaction) -> None: ...

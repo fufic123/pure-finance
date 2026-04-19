@@ -1,0 +1,104 @@
+from functools import lru_cache
+from typing import Annotated
+
+from fastapi import Depends, Header, Request
+
+from src.app.exceptions.access_token_invalid import AccessTokenInvalid
+from src.app.ports.rate_limiter import RateLimiter
+from src.app.services.auth.get_current_user import GetCurrentUser
+from src.app.services.auth.google_callback import GoogleCallback
+from src.app.services.auth.logout import Logout
+from src.app.services.auth.refresh_tokens import RefreshTokens
+from src.app.services.auth.start_google_auth import StartGoogleAuth
+from src.app.services.banking.finalize_bank_connection import FinalizeBankConnection
+from src.app.services.banking.get_account import GetAccount
+from src.app.services.banking.list_accounts import ListAccounts
+from src.app.services.banking.list_institutions import ListInstitutions
+from src.app.services.banking.list_transactions import ListTransactions
+from src.app.services.banking.start_bank_connection import StartBankConnection
+from src.app.services.banking.sync_transactions import SyncTransactions
+from src.bootstrap import AppContainer
+from src.domain.entities.user import User
+from src.shared.env import Settings
+
+AUTH_RATE_LIMIT = 30
+AUTH_RATE_WINDOW_SECONDS = 60
+
+
+@lru_cache(maxsize=1)
+def get_container() -> AppContainer:
+    return AppContainer(Settings())
+
+
+Container = Annotated[AppContainer, Depends(get_container)]
+
+
+def get_rate_limiter(container: Container) -> RateLimiter:
+    return container.rate_limiter()
+
+
+async def rate_limit_auth(
+    request: Request,
+    limiter: Annotated[RateLimiter, Depends(get_rate_limiter)],
+) -> None:
+    host = request.client.host if request.client else "unknown"
+    key = f"auth:{host}:{request.url.path}"
+    await limiter.hit(key, limit=AUTH_RATE_LIMIT, window_seconds=AUTH_RATE_WINDOW_SECONDS)
+
+
+def get_start_google_auth(container: Container) -> StartGoogleAuth:
+    return container.start_google_auth()
+
+
+def get_google_callback(container: Container) -> GoogleCallback:
+    return container.google_callback()
+
+
+def get_refresh_tokens(container: Container) -> RefreshTokens:
+    return container.refresh_tokens()
+
+
+def get_logout(container: Container) -> Logout:
+    return container.logout()
+
+
+def get_current_user_service(container: Container) -> GetCurrentUser:
+    return container.get_current_user()
+
+
+def get_list_institutions(container: Container) -> ListInstitutions:
+    return container.list_institutions()
+
+
+def get_start_bank_connection(container: Container) -> StartBankConnection:
+    return container.start_bank_connection()
+
+
+def get_finalize_bank_connection(container: Container) -> FinalizeBankConnection:
+    return container.finalize_bank_connection()
+
+
+def get_get_account(container: Container) -> GetAccount:
+    return container.get_account()
+
+
+def get_list_accounts(container: Container) -> ListAccounts:
+    return container.list_accounts()
+
+
+def get_list_transactions(container: Container) -> ListTransactions:
+    return container.list_transactions()
+
+
+def get_sync_transactions(container: Container) -> SyncTransactions:
+    return container.sync_transactions()
+
+
+async def get_current_user(
+    authorization: Annotated[str | None, Header()] = None,
+    service: Annotated[GetCurrentUser, Depends(get_current_user_service)] = None,
+) -> User:
+    if authorization is None or not authorization.startswith("Bearer "):
+        raise AccessTokenInvalid()
+    token = authorization.removeprefix("Bearer ")
+    return await service(token)

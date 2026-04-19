@@ -1,0 +1,16 @@
+from typing import Protocol
+from uuid import UUID
+
+from src.domain.entities.account import Account
+
+
+class AccountRepository(Protocol):
+    async def add(self, account: Account) -> None: ...
+
+    async def get_by_id(self, account_id: UUID) -> Account | None: ...
+
+    async def get_by_external_id(self, external_id: str) -> Account | None: ...
+
+    async def list_by_user(self, user_id: UUID) -> list[Account]: ...
+
+    async def list_all(self) -> list[Account]: ...

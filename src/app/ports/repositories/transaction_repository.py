@@ -1,0 +1,12 @@
+from typing import Protocol
+from uuid import UUID
+
+from src.domain.entities.transaction import Transaction
+
+
+class TransactionRepository(Protocol):
+    async def add(self, transaction: Transaction) -> None: ...
+
+    async def get_by_external_id(self, external_id: str) -> Transaction | None: ...
+
+    async def list_by_account(self, account_id: UUID) -> list[Transaction]: ...

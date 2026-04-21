@@ -17,3 +17,18 @@ services:
     environment:
       NEXT_PUBLIC_API_BASE_URL: http://localhost:8000/api
       NODE_ENV: development
+
+  frontend-mock:
+    build: ./frontend-mock
+    command: pnpm dev --hostname 0.0.0.0
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./frontend-mock/src:/app/src
+      - ./frontend-mock/public:/app/public
+      - ./frontend-mock/next.config.mjs:/app/next.config.mjs
+      - ./frontend-mock/tailwind.config.ts:/app/tailwind.config.ts
+      - ./frontend-mock/postcss.config.mjs:/app/postcss.config.mjs
+      - ./frontend-mock/tsconfig.json:/app/tsconfig.json
+    environment:
+      NODE_ENV: development

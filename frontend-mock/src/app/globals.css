@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --pf-black: #0a0a0a;
+  --pf-white: #ffffff;
+  --pf-near-black: #1a1a1a;
+  --pf-muted: #6b6b6b;
+  --pf-border: #e5e5e5;
+  --pf-surface: #f7f7f7;
+  --pf-gold-base: #c9a227;
+  --pf-income: #1f7a3d;
+  --pf-expense: #b03a2e;
+  --pf-warning: #a87400;
+
+  --pf-grad-metallic: linear-gradient(
+    135deg,
+    #8b6914 0%,
+    #b8922c 20%,
+    #d4af37 40%,
+    #edd060 50%,
+    #d4af37 60%,
+    #b8922c 80%,
+    #8b6914 100%
+  );
+
+  --pf-grad-metallic-subtle: linear-gradient(135deg, #c9a227 0%, #e8d178 50%, #c9a227 100%);
+
+  --pf-grad-text: linear-gradient(
+    135deg,
+    #8b6914,
+    #d4af37 40%,
+    #edd060 50%,
+    #d4af37 60%,
+    #8b6914
+  );
+}
+
+html,
+body {
+  background: var(--pf-black);
+  color: var(--pf-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior-y: none;
+}
+
+.pf-gold-text {
+  background: var(--pf-grad-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+}
+
+.pf-safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+.pf-safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Hide scrollbars on horizontal scroll strips for that iOS feel */
+.pf-noscrollbar::-webkit-scrollbar {
+  display: none;
+}
+.pf-noscrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

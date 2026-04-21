@@ -150,11 +150,11 @@ async def get_account_balance(
     return BalanceResponse.from_balance(balance) if balance else None
 
 
-@router.get("/accounts/{account_id}/transactions", response_model=list[TransactionResponse])
+@router.get("/transactions", response_model=list[TransactionResponse])
 async def list_transactions(
-    account_id: UUID,
     user: Annotated[User, Depends(get_current_user)],
     service: Annotated[ListTransactions, Depends(get_list_transactions)],
+    account_id: Annotated[UUID, Query()],
     from_date: Annotated[date | None, Query(alias="from")] = None,
     to_date: Annotated[date | None, Query(alias="to")] = None,
     category_id: Annotated[UUID | None, Query()] = None,

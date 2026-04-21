@@ -378,7 +378,7 @@ class TestListTransactionsRoute:
         )
         client = _client_with(transactions=StubListTransactions(transactions=[tx]))
 
-        response = client.get(f"/api/accounts/{account.id}/transactions")
+        response = client.get(f"/api/transactions?account_id={account.id}")
 
         assert response.status_code == 200
         data = response.json()
@@ -391,12 +391,12 @@ class TestListTransactionsRoute:
             transactions=StubListTransactions(raises=AccountNotFound())
         )
 
-        response = client.get(f"/api/accounts/{uuid4()}/transactions")
+        response = client.get(f"/api/transactions?account_id={uuid4()}")
 
         assert response.status_code == 404
 
     def test_returns_401_without_auth(self) -> None:
-        response = _client_no_auth().get(f"/api/accounts/{uuid4()}/transactions")
+        response = _client_no_auth().get(f"/api/transactions?account_id={uuid4()}")
 
         assert response.status_code == 401
 

@@ -73,7 +73,7 @@ async def revoke_connection(
     await service(session_id=session_id, user_id=user.id)
 
 
-@router.post("/connections/start", response_model=StartConnectionResponse)
+@router.post("/connections", response_model=StartConnectionResponse, status_code=201)
 async def start_connection(
     body: StartConnectionRequest,
     user: Annotated[User, Depends(get_current_user)],
@@ -87,7 +87,7 @@ async def start_connection(
     return StartConnectionResponse.from_session(session)
 
 
-@router.post("/connections/{session_id}/finalize", response_model=list[AccountResponse])
+@router.post("/connections/{session_id}/completion", response_model=list[AccountResponse])
 async def finalize_connection(
     session_id: UUID,
     user: Annotated[User, Depends(get_current_user)],

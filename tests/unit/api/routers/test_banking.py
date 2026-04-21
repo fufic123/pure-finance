@@ -298,18 +298,18 @@ class TestStartConnectionRoute:
         client = _client_with(start=StubStartBankConnection(session))
 
         response = client.post(
-            "/api/connections/start",
+            "/api/connections",
             json={"institution_id": "REVOLUT_LT", "redirect_uri": "http://localhost/cb"},
         )
 
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert data["session_id"] == str(session.id)
         assert data["link"] == "https://ob.example.com/auth"
 
     def test_returns_401_without_auth(self) -> None:
         response = _client_no_auth().post(
-            "/api/connections/start",
+            "/api/connections",
             json={"institution_id": "REVOLUT_LT", "redirect_uri": "http://localhost/cb"},
         )
 
@@ -321,7 +321,7 @@ class TestFinalizeConnectionRoute:
         account = _make_account()
         client = _client_with(finalize=StubFinalizeBankConnection(accounts=[account]))
 
-        response = client.post(f"/api/connections/{uuid4()}/finalize")
+        response = client.post(f"/api/connections/{uuid4()}/completion")
 
         assert response.status_code == 200
         assert len(response.json()) == 1
@@ -331,7 +331,7 @@ class TestFinalizeConnectionRoute:
             finalize=StubFinalizeBankConnection(raises=ConnectionSessionNotFound())
         )
 
-        response = client.post(f"/api/connections/{uuid4()}/finalize")
+        response = client.post(f"/api/connections/{uuid4()}/completion")
 
         assert response.status_code == 404
 
@@ -340,7 +340,7 @@ class TestFinalizeConnectionRoute:
             finalize=StubFinalizeBankConnection(raises=ConnectionSessionExpired())
         )
 
-        response = client.post(f"/api/connections/{uuid4()}/finalize")
+        response = client.post(f"/api/connections/{uuid4()}/completion")
 
         assert response.status_code == 410
 

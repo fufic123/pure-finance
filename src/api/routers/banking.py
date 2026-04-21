@@ -26,6 +26,7 @@ from src.api.dtos.connection_response import ConnectionResponse
 from src.api.dtos.institution_response import InstitutionResponse
 from src.api.dtos.start_connection_request import StartConnectionRequest
 from src.api.dtos.start_connection_response import StartConnectionResponse
+from src.api.dtos.sync_response import SyncResponse
 from src.api.dtos.transaction_response import TransactionResponse
 from src.api.dtos.update_transaction_request import UpdateTransactionRequest
 from src.app.services.banking.delete_account import DeleteAccount
@@ -125,18 +126,18 @@ async def delete_account(
     await service(account_id=account_id, user_id=user.id)
 
 
-@router.post("/accounts/{account_id}/sync", status_code=200)
+@router.post("/accounts/{account_id}/syncs", response_model=SyncResponse, status_code=201)
 async def sync_account(
     account_id: UUID,
     user: Annotated[User, Depends(get_current_user)],
     get_acct: Annotated[GetAccount, Depends(get_get_account)],
     sync: Annotated[SyncTransactions, Depends(get_sync_transactions)],
     sync_balance: Annotated[SyncAccountBalance, Depends(get_sync_account_balance)],
-) -> dict:
+) -> SyncResponse:
     account = await get_acct(account_id=account_id, user_id=user.id)
     added = await sync(account_id=account.id, account_external_id=account.external_id, user_id=user.id)
     await sync_balance(account_id=account.id, account_external_id=account.external_id)
-    return {"added": added}
+    return SyncResponse(added=added)
 
 
 @router.get("/accounts/{account_id}/balance", response_model=BalanceResponse | None)

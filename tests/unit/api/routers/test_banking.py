@@ -275,7 +275,7 @@ class TestListInstitutionsRoute:
         )
         client = _client_with(institutions=StubListInstitutions([inst]))
 
-        response = client.get("/institutions?country=LT")
+        response = client.get("/api/institutions?country=LT")
 
         assert response.status_code == 200
         data = response.json()
@@ -286,7 +286,7 @@ class TestListInstitutionsRoute:
     def test_returns_empty_list(self) -> None:
         client = _client_with(institutions=StubListInstitutions([]))
 
-        response = client.get("/institutions?country=XX")
+        response = client.get("/api/institutions?country=XX")
 
         assert response.status_code == 200
         assert response.json() == []
@@ -298,7 +298,7 @@ class TestStartConnectionRoute:
         client = _client_with(start=StubStartBankConnection(session))
 
         response = client.post(
-            "/connections/start",
+            "/api/connections/start",
             json={"institution_id": "REVOLUT_LT", "redirect_uri": "http://localhost/cb"},
         )
 
@@ -309,7 +309,7 @@ class TestStartConnectionRoute:
 
     def test_returns_401_without_auth(self) -> None:
         response = _client_no_auth().post(
-            "/connections/start",
+            "/api/connections/start",
             json={"institution_id": "REVOLUT_LT", "redirect_uri": "http://localhost/cb"},
         )
 
@@ -321,7 +321,7 @@ class TestFinalizeConnectionRoute:
         account = _make_account()
         client = _client_with(finalize=StubFinalizeBankConnection(accounts=[account]))
 
-        response = client.post(f"/connections/{uuid4()}/finalize")
+        response = client.post(f"/api/connections/{uuid4()}/finalize")
 
         assert response.status_code == 200
         assert len(response.json()) == 1
@@ -331,7 +331,7 @@ class TestFinalizeConnectionRoute:
             finalize=StubFinalizeBankConnection(raises=ConnectionSessionNotFound())
         )
 
-        response = client.post(f"/connections/{uuid4()}/finalize")
+        response = client.post(f"/api/connections/{uuid4()}/finalize")
 
         assert response.status_code == 404
 
@@ -340,7 +340,7 @@ class TestFinalizeConnectionRoute:
             finalize=StubFinalizeBankConnection(raises=ConnectionSessionExpired())
         )
 
-        response = client.post(f"/connections/{uuid4()}/finalize")
+        response = client.post(f"/api/connections/{uuid4()}/finalize")
 
         assert response.status_code == 410
 
@@ -350,7 +350,7 @@ class TestListAccountsRoute:
         account = _make_account()
         client = _client_with(accounts=StubListAccounts([account]))
 
-        response = client.get("/accounts")
+        response = client.get("/api/accounts")
 
         assert response.status_code == 200
         data = response.json()
@@ -358,7 +358,7 @@ class TestListAccountsRoute:
         assert data[0]["currency"] == "EUR"
 
     def test_returns_401_without_auth(self) -> None:
-        response = _client_no_auth().get("/accounts")
+        response = _client_no_auth().get("/api/accounts")
 
         assert response.status_code == 401
 
@@ -378,7 +378,7 @@ class TestListTransactionsRoute:
         )
         client = _client_with(transactions=StubListTransactions(transactions=[tx]))
 
-        response = client.get(f"/accounts/{account.id}/transactions")
+        response = client.get(f"/api/accounts/{account.id}/transactions")
 
         assert response.status_code == 200
         data = response.json()
@@ -391,12 +391,12 @@ class TestListTransactionsRoute:
             transactions=StubListTransactions(raises=AccountNotFound())
         )
 
-        response = client.get(f"/accounts/{uuid4()}/transactions")
+        response = client.get(f"/api/accounts/{uuid4()}/transactions")
 
         assert response.status_code == 404
 
     def test_returns_401_without_auth(self) -> None:
-        response = _client_no_auth().get(f"/accounts/{uuid4()}/transactions")
+        response = _client_no_auth().get(f"/api/accounts/{uuid4()}/transactions")
 
         assert response.status_code == 401
 
@@ -412,7 +412,7 @@ class TestGetAccountBalanceRoute:
         )
         client = _client_with(balance=StubGetBalance(balance=balance))
 
-        response = client.get(f"/accounts/{account.id}/balance")
+        response = client.get(f"/api/accounts/{account.id}/balance")
 
         assert response.status_code == 200
         data = response.json()
@@ -422,7 +422,7 @@ class TestGetAccountBalanceRoute:
     def test_returns_null_when_no_balance(self) -> None:
         client = _client_with(balance=StubGetBalance(balance=None))
 
-        response = client.get(f"/accounts/{uuid4()}/balance")
+        response = client.get(f"/api/accounts/{uuid4()}/balance")
 
         assert response.status_code == 200
         assert response.json() is None
@@ -430,12 +430,12 @@ class TestGetAccountBalanceRoute:
     def test_returns_404_when_account_not_owned(self) -> None:
         client = _client_with(balance=StubGetBalance(raises=AccountNotFound()))
 
-        response = client.get(f"/accounts/{uuid4()}/balance")
+        response = client.get(f"/api/accounts/{uuid4()}/balance")
 
         assert response.status_code == 404
 
     def test_returns_401_without_auth(self) -> None:
-        response = _client_no_auth().get(f"/accounts/{uuid4()}/balance")
+        response = _client_no_auth().get(f"/api/accounts/{uuid4()}/balance")
 
         assert response.status_code == 401
 
@@ -448,7 +448,7 @@ class TestDeleteAccountRoute:
         app.dependency_overrides[get_current_user] = lambda: _USER
         client = TestClient(app)
 
-        response = client.delete(f"/accounts/{account_id}")
+        response = client.delete(f"/api/accounts/{account_id}")
 
         assert response.status_code == 204
 
@@ -459,12 +459,12 @@ class TestDeleteAccountRoute:
         app.dependency_overrides[get_delete_account] = lambda: _StubDeleteAccount(raises=AccountNotFound())
         client = TestClient(app)
 
-        response = client.delete(f"/accounts/{uuid4()}")
+        response = client.delete(f"/api/accounts/{uuid4()}")
 
         assert response.status_code == 404
 
     def test_returns_401_without_auth(self) -> None:
-        response = _client_no_auth().delete(f"/accounts/{uuid4()}")
+        response = _client_no_auth().delete(f"/api/accounts/{uuid4()}")
 
         assert response.status_code == 401
 
@@ -479,7 +479,7 @@ class TestUpdateTransactionRoute:
         app.dependency_overrides[get_update_transaction] = lambda: _StubUpdateTransaction(transaction=tx)
         client = TestClient(app)
 
-        response = client.patch(f"/transactions/{tx.id}", json={"note": "groceries"})
+        response = client.patch(f"/api/transactions/{tx.id}", json={"note": "groceries"})
 
         assert response.status_code == 200
         assert response.json()["note"] == "groceries"
@@ -491,11 +491,11 @@ class TestUpdateTransactionRoute:
         app.dependency_overrides[get_update_transaction] = lambda: _StubUpdateTransaction(raises=TransactionNotFound())
         client = TestClient(app)
 
-        response = client.patch(f"/transactions/{uuid4()}", json={"note": "x"})
+        response = client.patch(f"/api/transactions/{uuid4()}", json={"note": "x"})
 
         assert response.status_code == 404
 
     def test_returns_401_without_auth(self) -> None:
-        response = _client_no_auth().patch(f"/transactions/{uuid4()}", json={"note": "x"})
+        response = _client_no_auth().patch(f"/api/transactions/{uuid4()}", json={"note": "x"})
 
         assert response.status_code == 401

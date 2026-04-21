@@ -20,7 +20,7 @@ class TestAuthRateLimiting:
         client = TestClient(app)
 
         for _ in range(AUTH_RATE_LIMIT):
-            response = client.post("/auth/logout", json={"refresh": "r"})
+            response = client.post("/api/auth/logout", json={"refresh": "r"})
             assert response.status_code == 204
 
     def test_returns_429_after_limit(self) -> None:
@@ -28,9 +28,9 @@ class TestAuthRateLimiting:
         client = TestClient(app)
 
         for _ in range(AUTH_RATE_LIMIT):
-            client.post("/auth/logout", json={"refresh": "r"})
+            client.post("/api/auth/logout", json={"refresh": "r"})
 
-        response = client.post("/auth/logout", json={"refresh": "r"})
+        response = client.post("/api/auth/logout", json={"refresh": "r"})
         assert response.status_code == 429
 
 

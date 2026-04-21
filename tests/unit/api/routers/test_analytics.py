@@ -97,7 +97,7 @@ class TestGetSummaryRoute:
         )
         client = _authed_client({get_analytics_summary: _StubGetAnalyticsSummary(result=summary)})
 
-        response = client.get("/analytics/summary")
+        response = client.get("/api/analytics/summary")
 
         assert response.status_code == 200
         data = response.json()
@@ -112,12 +112,12 @@ class TestGetSummaryRoute:
             {get_analytics_summary: _StubGetAnalyticsSummary(raises=AccountNotFound())}
         )
 
-        response = client.get(f"/analytics/summary?account_id={uuid4()}")
+        response = client.get(f"/api/analytics/summary?account_id={uuid4()}")
 
         assert response.status_code == 404
 
     def test_returns_401_without_auth(self) -> None:
-        response = _no_auth_client().get("/analytics/summary")
+        response = _no_auth_client().get("/api/analytics/summary")
 
         assert response.status_code == 401
 
@@ -133,7 +133,7 @@ class TestGetByCategoryRoute:
             {get_analytics_by_category: _StubGetAnalyticsByCategory(result=totals)}
         )
 
-        response = client.get("/analytics/by-category")
+        response = client.get("/api/analytics/by-category")
 
         assert response.status_code == 200
         data = response.json()
@@ -148,11 +148,11 @@ class TestGetByCategoryRoute:
             {get_analytics_by_category: _StubGetAnalyticsByCategory(raises=AccountNotFound())}
         )
 
-        response = client.get(f"/analytics/by-category?account_id={uuid4()}")
+        response = client.get(f"/api/analytics/by-category?account_id={uuid4()}")
 
         assert response.status_code == 404
 
     def test_returns_401_without_auth(self) -> None:
-        response = _no_auth_client().get("/analytics/by-category")
+        response = _no_auth_client().get("/api/analytics/by-category")
 
         assert response.status_code == 401

@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, status
 from fastapi.responses import Response
 
 from src.api.dependencies import (
-    get_current_user,
     get_google_callback,
     get_logout,
     get_refresh_tokens,
@@ -17,12 +16,10 @@ from src.api.dtos.google_callback_request import GoogleCallbackRequest
 from src.api.dtos.logout_request import LogoutRequest
 from src.api.dtos.refresh_request import RefreshRequest
 from src.api.dtos.token_pair_response import TokenPairResponse
-from src.api.dtos.user_response import UserResponse
 from src.app.services.auth.google_callback import GoogleCallback
 from src.app.services.auth.logout import Logout
 from src.app.services.auth.refresh_tokens import RefreshTokens
 from src.app.services.auth.start_google_auth import StartGoogleAuth
-from src.domain.entities.user import User
 
 router = APIRouter(prefix="/auth")
 
@@ -81,8 +78,3 @@ async def logout(
 ) -> Response:
     await service(body.refresh)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
-
-
-@router.get("/me", response_model=UserResponse)
-async def me(user: Annotated[User, Depends(get_current_user)]) -> UserResponse:
-    return UserResponse.from_user(user)

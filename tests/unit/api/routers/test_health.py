@@ -7,7 +7,7 @@ class TestHealthz:
     def test_returns_ok_status(self) -> None:
         client = TestClient(create_app())
 
-        response = client.get("/healthz")
+        response = client.get("/api/healthz")
 
         assert response.status_code == 200
         assert response.json() == {"status": "ok"}

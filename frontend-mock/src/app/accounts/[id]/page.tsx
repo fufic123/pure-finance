@@ -159,11 +159,11 @@ export default function AccountDetailPage() {
 
         <div className="mx-5 mb-4 h-px" style={{ background: C.border }} />
 
-        {/* Primary — AI Insights */}
-        <AccAICard dark={dark} />
-
-        {/* Secondary analytics — horizontal slider */}
+        {/* All analytics in one horizontal slider, AI Insights first */}
         <AnalyticsSlider>
+          <AnalyticsSliderItem>
+            <AccAICard dark={dark} embedded />
+          </AnalyticsSliderItem>
           <AnalyticsSliderItem>
             <AccStatsCard dark={dark} embedded />
           </AnalyticsSliderItem>

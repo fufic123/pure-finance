@@ -13,14 +13,7 @@ import { PageTransition } from "@/components/page-transition";
 import { StaggerList } from "@/components/stagger-list";
 import { OutlineButton } from "@/components/outline-button";
 import { TransactionRow } from "@/components/transaction-row";
-import { AccStatsCard } from "@/components/acc-stats-card";
-import { AccDonutCard } from "@/components/acc-donut-card";
-import { AccBarsCard } from "@/components/acc-bars-card";
 import { AccAICard } from "@/components/acc-ai-card";
-import {
-  AnalyticsSlider,
-  AnalyticsSliderItem,
-} from "@/components/analytics-slider";
 
 function IcChevronLeft({ color }: { color: string }) {
   return (
@@ -159,21 +152,8 @@ export default function AccountDetailPage() {
 
         <div className="mx-5 mb-4 h-px" style={{ background: C.border }} />
 
-        {/* All analytics in one horizontal slider, AI Insights first */}
-        <AnalyticsSlider>
-          <AnalyticsSliderItem>
-            <AccAICard dark={dark} embedded />
-          </AnalyticsSliderItem>
-          <AnalyticsSliderItem>
-            <AccStatsCard dark={dark} embedded />
-          </AnalyticsSliderItem>
-          <AnalyticsSliderItem>
-            <AccDonutCard dark={dark} embedded />
-          </AnalyticsSliderItem>
-          <AnalyticsSliderItem>
-            <AccBarsCard dark={dark} embedded />
-          </AnalyticsSliderItem>
-        </AnalyticsSlider>
+        {/* Analytics — AI Insights */}
+        <AccAICard dark={dark} />
 
         {/* Transactions */}
         <div className="mb-1 flex items-center justify-between px-5">

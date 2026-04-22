@@ -1,6 +1,7 @@
 from types import TracebackType
 
 from src.app.ports.repositories.account_repository import AccountRepository
+from src.app.ports.repositories.balance_snapshot_repository import BalanceSnapshotRepository
 from src.app.ports.repositories.categorization_rule_repository import CategorizationRuleRepository
 from src.app.ports.repositories.category_repository import CategoryRepository
 from src.app.ports.repositories.institution_repository import InstitutionRepository
@@ -8,6 +9,7 @@ from src.app.ports.repositories.refresh_token_repository import RefreshTokenRepo
 from src.app.ports.repositories.transaction_repository import TransactionRepository
 from src.app.ports.repositories.user_repository import UserRepository
 from tests.fakes.repositories.account_repository import InMemoryAccountRepository
+from tests.fakes.repositories.balance_snapshot_repository import InMemoryBalanceSnapshotRepository
 from tests.fakes.repositories.categorization_rule_repository import InMemoryCategorizationRuleRepository
 from tests.fakes.repositories.category_repository import InMemoryCategoryRepository
 from tests.fakes.repositories.institution_repository import InMemoryInstitutionRepository
@@ -20,6 +22,7 @@ class FakeUnitOfWork:
         users: UserRepository,
         refresh_tokens: RefreshTokenRepository,
         accounts: AccountRepository | None = None,
+        balance_snapshots: BalanceSnapshotRepository | None = None,
         transactions: TransactionRepository | None = None,
         categories: CategoryRepository | None = None,
         categorization_rules: CategorizationRuleRepository | None = None,
@@ -28,6 +31,7 @@ class FakeUnitOfWork:
         self.users = users
         self.refresh_tokens = refresh_tokens
         self.accounts = accounts or InMemoryAccountRepository()
+        self.balance_snapshots = balance_snapshots or InMemoryBalanceSnapshotRepository()
         self.transactions = transactions or InMemoryTransactionRepository()
         self.categories = categories or InMemoryCategoryRepository()
         self.categorization_rules = categorization_rules or InMemoryCategorizationRuleRepository()

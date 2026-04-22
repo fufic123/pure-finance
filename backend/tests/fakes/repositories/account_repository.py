@@ -21,3 +21,6 @@ class InMemoryAccountRepository:
 
     async def list_all(self) -> list[Account]:
         return list(self._by_id.values())
+
+    async def update(self, account: Account) -> None:
+        self._by_id[account.id] = account

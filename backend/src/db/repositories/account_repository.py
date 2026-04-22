@@ -33,6 +33,14 @@ class PostgresAccountRepository:
             delete(AccountModel).where(AccountModel.id == account_id)
         )
 
+    async def update(self, account: Account) -> None:
+        model = await self._session.get(AccountModel, account.id)
+        if model is None:
+            return
+        model.name = account.name
+        model.balance = account.balance
+        model.institution_id = account.institution_id
+
     @staticmethod
     def _to_entity(model: AccountModel) -> Account:
         return Account(
@@ -42,6 +50,8 @@ class PostgresAccountRepository:
             currency=model.currency,
             name=model.name,
             created_at=model.created_at,
+            institution_id=model.institution_id,
+            balance=model.balance,
         )
 
     @staticmethod
@@ -53,4 +63,6 @@ class PostgresAccountRepository:
             currency=entity.currency,
             name=entity.name,
             created_at=entity.created_at,
+            institution_id=entity.institution_id,
+            balance=entity.balance,
         )

@@ -83,7 +83,7 @@ export default function Landing() {
           transition={{ duration: 0.3, ease: "easeOut", delay: 0.25 }}
           className="pb-10"
         >
-          <SignInButton dark={dark} onClick={() => router.push("/home")}>
+          <SignInButton dark={dark} onClick={() => router.push("/onboarding")}>
             Continue with Google
           </SignInButton>
           <p

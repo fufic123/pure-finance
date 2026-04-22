@@ -22,6 +22,7 @@ from src.app.services.categorization_rules.list_rules import ListRules
 from src.app.services.categories.create_category import CreateCategory
 from src.app.services.categories.delete_category import DeleteCategory
 from src.app.services.categories.list_categories import ListCategories
+from src.app.services.institutions.list_institutions import ListInstitutions
 from src.db.session import create_engine, create_session_maker
 from src.db.unit_of_work import SqlAlchemyUnitOfWork
 from src.integrations.auth.google_oauth import GoogleOauthClient
@@ -124,6 +125,9 @@ class AppContainer:
 
     def delete_category(self) -> DeleteCategory:
         return DeleteCategory(uow_factory=self._uow_factory)
+
+    def list_institutions(self) -> ListInstitutions:
+        return ListInstitutions(uow_factory=self._uow_factory)
 
     def list_transactions(self) -> ListTransactions:
         return ListTransactions(uow_factory=self._uow_factory)

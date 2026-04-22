@@ -5,12 +5,14 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from src.app.ports.repositories.account_repository import AccountRepository
 from src.app.ports.repositories.categorization_rule_repository import CategorizationRuleRepository
 from src.app.ports.repositories.category_repository import CategoryRepository
+from src.app.ports.repositories.institution_repository import InstitutionRepository
 from src.app.ports.repositories.refresh_token_repository import RefreshTokenRepository
 from src.app.ports.repositories.transaction_repository import TransactionRepository
 from src.app.ports.repositories.user_repository import UserRepository
 from src.db.repositories.account_repository import PostgresAccountRepository
 from src.db.repositories.categorization_rule_repository import PostgresCategorizationRuleRepository
 from src.db.repositories.category_repository import PostgresCategoryRepository
+from src.db.repositories.institution_repository import PostgresInstitutionRepository
 from src.db.repositories.refresh_token_repository import PostgresRefreshTokenRepository
 from src.db.repositories.transaction_repository import PostgresTransactionRepository
 from src.db.repositories.user_repository import PostgresUserRepository
@@ -23,6 +25,7 @@ class SqlAlchemyUnitOfWork:
     transactions: TransactionRepository
     categories: CategoryRepository
     categorization_rules: CategorizationRuleRepository
+    institutions: InstitutionRepository
 
     def __init__(self, session_maker: async_sessionmaker[AsyncSession]) -> None:
         self._session_maker = session_maker
@@ -36,6 +39,7 @@ class SqlAlchemyUnitOfWork:
         self.transactions = PostgresTransactionRepository(self._session)
         self.categories = PostgresCategoryRepository(self._session)
         self.categorization_rules = PostgresCategorizationRuleRepository(self._session)
+        self.institutions = PostgresInstitutionRepository(self._session)
         return self
 
     async def __aexit__(

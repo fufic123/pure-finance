@@ -23,6 +23,7 @@ from src.app.services.categorization_rules.list_rules import ListRules
 from src.app.services.categories.create_category import CreateCategory
 from src.app.services.categories.delete_category import DeleteCategory
 from src.app.services.categories.list_categories import ListCategories
+from src.app.services.institutions.list_institutions import ListInstitutions
 from src.bootstrap import AppContainer
 from src.domain.entities.user import User
 from src.shared.env import Settings
@@ -122,6 +123,10 @@ def get_create_rule(container: Container) -> CreateRule:
 
 def get_delete_rule(container: Container) -> DeleteRule:
     return container.delete_rule()
+
+
+def get_list_institutions(container: Container) -> ListInstitutions:
+    return container.list_institutions()
 
 
 async def get_current_user(

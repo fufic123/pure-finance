@@ -17,3 +17,13 @@ celerybeat.pid
 .DS_Store
 CLAUDE.md
 .mcp.json
+
+# Local design references — Claude Design output kept outside shared history
+/Pure Finance Screen Reference.html
+/*.jsx
+
+# Per-project design docs kept local
+backend/docs/
+
+# Package manager lockfiles — each workspace regenerates on install
+pnpm-lock.yaml

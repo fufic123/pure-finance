@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { MOCK_TRANSACTIONS } from "@/lib/mock";
 import { GRAD_METALLIC, pfTheme } from "@/lib/tokens";
@@ -66,19 +67,33 @@ export default function TransactionsPage() {
           >
             Transactions
           </span>
-          <motion.button
-            type="button"
-            whileTap={{ scale: 0.92 }}
-            onClick={() => setFilterOpen(true)}
-            className="flex h-9 w-9 items-center justify-center rounded-[10px]"
-            style={{
-              background: C.surface,
-              border: `1px solid ${C.border}`,
-              color: C.muted,
-            }}
-          >
-            <IcFilter color={C.muted} />
-          </motion.button>
+          <div className="flex items-center gap-2">
+            <motion.button
+              type="button"
+              whileTap={{ scale: 0.92 }}
+              onClick={() => setFilterOpen(true)}
+              className="flex h-9 w-9 items-center justify-center rounded-[10px]"
+              style={{
+                background: C.surface,
+                border: `1px solid ${C.border}`,
+                color: C.muted,
+              }}
+            >
+              <IcFilter color={C.muted} />
+            </motion.button>
+            <Link
+              href="/transactions/new"
+              aria-label="Add transaction"
+              className="flex h-9 w-9 items-center justify-center rounded-[10px] text-[22px] font-light leading-none"
+              style={{
+                background: C.surface,
+                border: `1px solid ${C.border}`,
+                color: C.text,
+              }}
+            >
+              +
+            </Link>
+          </div>
         </header>
 
         <div className="pf-noscrollbar flex gap-2 overflow-x-auto px-5 pb-3">

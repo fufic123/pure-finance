@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { MOCK_CATEGORY_TREE, type CategoryNode } from "@/lib/mock";
 import { GRAD_METALLIC, PF, pfTheme } from "@/lib/tokens";
@@ -46,8 +47,7 @@ export default function CategoriesPage() {
             className="text-[13px] leading-[1.5]"
             style={{ color: C.muted }}
           >
-            Organize transactions. System categories can&apos;t be removed. Tap a user row to
-            reveal Delete.
+            Organize transactions. System categories can&apos;t be edited or removed. Tap a user row to reveal Edit and Delete.
           </p>
         </div>
 
@@ -211,6 +211,7 @@ function ChildRow({
   onToggle: () => void;
 }) {
   const C = pfTheme(dark);
+  const router = useRouter();
   return (
     <div>
       <button
@@ -244,7 +245,15 @@ function ChildRow({
               background: dark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
             }}
           >
-            <div className="flex justify-end px-5 py-2">
+            <div className="flex justify-end gap-4 px-5 py-2">
+              <button
+                type="button"
+                onClick={() => router.push(`/settings/categories/${node.id}/edit`)}
+                className="text-[13px] font-medium"
+                style={{ color: PF.goldBase }}
+              >
+                Edit
+              </button>
               <button
                 type="button"
                 className="text-[13px] font-medium"

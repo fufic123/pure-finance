@@ -11,6 +11,8 @@ import { PF, pfTheme } from "@/lib/tokens";
 import { useTheme } from "@/lib/theme";
 import { PageTransition } from "@/components/page-transition";
 import { MerchantAvatar } from "@/components/merchant-avatar";
+import { ActionSheet } from "@/components/action-sheet";
+import { ConfirmSheet } from "@/components/confirm-sheet";
 
 function IcChevronLeft({ color }: { color: string }) {
   return (
@@ -36,6 +38,8 @@ export default function TransactionDetailPage() {
   const C = pfTheme(dark);
   const [note, setNote] = useState("");
   const [editNote, setEditNote] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   return (
     <PageTransition>
@@ -59,6 +63,8 @@ export default function TransactionDetailPage() {
           </span>
           <button
             type="button"
+            onClick={() => setMenuOpen(true)}
+            aria-label="More"
             className="flex h-9 w-9 items-center justify-center rounded-[10px]"
             style={{
               background: C.surface,
@@ -72,6 +78,24 @@ export default function TransactionDetailPage() {
             </svg>
           </button>
         </div>
+
+        <ActionSheet
+          open={menuOpen}
+          onClose={() => setMenuOpen(false)}
+          actions={[
+            { label: "Edit transaction", onClick: () => router.push(`/transactions/${tx.id}/edit`) },
+            { label: "Delete transaction", destructive: true, onClick: () => setConfirmDelete(true) },
+          ]}
+        />
+        <ConfirmSheet
+          open={confirmDelete}
+          title="Delete this transaction?"
+          body="This can't be undone. The transaction will be removed and your balance history re-computed."
+          confirmLabel="Delete"
+          destructive
+          onClose={() => setConfirmDelete(false)}
+          onConfirm={() => router.back()}
+        />
 
         {/* Amount hero */}
         <section

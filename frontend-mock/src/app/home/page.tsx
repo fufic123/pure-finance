@@ -74,7 +74,7 @@ export default function HomePage() {
             ))}
             <motion.li variants={staggerItem} className="list-none">
               <Link
-                href="/onboarding"
+                href="/accounts/new"
                 className="flex h-[50px] items-center gap-3.5 px-5"
                 style={{ color: C.muted }}
               >
@@ -84,7 +84,22 @@ export default function HomePage() {
                 >
                   <span className="text-[18px] leading-none">+</span>
                 </div>
-                <span className="text-[15px]">Add bank</span>
+                <span className="text-[15px]">Add account</span>
+              </Link>
+            </motion.li>
+            <motion.li variants={staggerItem} className="list-none">
+              <Link
+                href="/onboarding"
+                className="flex h-[50px] items-center gap-3.5 px-5"
+                style={{ color: C.muted }}
+              >
+                <div
+                  className="flex h-[34px] w-[34px] flex-shrink-0 items-center justify-center rounded-[9px]"
+                  style={{ border: `1.5px dashed ${C.border}` }}
+                >
+                  <span className="text-[14px] leading-none">🏦</span>
+                </div>
+                <span className="text-[15px]">Connect a bank</span>
               </Link>
             </motion.li>
           </StaggerList>

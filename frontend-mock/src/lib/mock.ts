@@ -110,6 +110,28 @@ export const MOCK_CATEGORIES: MockCategory[] = [
   { name: "Uncategorized", total: "80.00", pct: 5, count: 2 },
 ];
 
+export type MockInstitution = {
+  id: string;
+  name: string;
+};
+
+// Matches the backend seed so the picker uses the same list.
+export const MOCK_INSTITUTIONS: MockInstitution[] = [
+  { id: "inst-seb", name: "SEB" },
+  { id: "inst-swedbank", name: "Swedbank" },
+  { id: "inst-luminor", name: "Luminor" },
+  { id: "inst-lhv", name: "LHV" },
+  { id: "inst-citadele", name: "Citadele" },
+  { id: "inst-revolut", name: "Revolut" },
+  { id: "inst-paysera", name: "Paysera" },
+  { id: "inst-siauliu", name: "Šiaulių bankas" },
+  { id: "inst-monobank", name: "Monobank" },
+  { id: "inst-privatbank", name: "PrivatBank" },
+  { id: "inst-wise", name: "Wise" },
+  { id: "inst-n26", name: "N26" },
+  { id: "inst-other", name: "Other" },
+];
+
 export const MOCK_BANKS: MockBank[] = [
   { id: "REVOLUT_LT", name: "Revolut", abbr: "R", color: "#191C1F" },
   { id: "SEB_LT", name: "SEB", abbr: "S", color: "#006B2D" },

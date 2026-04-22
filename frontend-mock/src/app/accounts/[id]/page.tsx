@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -14,6 +15,8 @@ import { StaggerList } from "@/components/stagger-list";
 import { OutlineButton } from "@/components/outline-button";
 import { TransactionRow } from "@/components/transaction-row";
 import { AccAICard } from "@/components/acc-ai-card";
+import { ActionSheet } from "@/components/action-sheet";
+import { ConfirmSheet } from "@/components/confirm-sheet";
 
 function IcChevronLeft({ color }: { color: string }) {
   return (
@@ -56,6 +59,8 @@ export default function AccountDetailPage() {
   const C = pfTheme(dark);
   const acc = MOCK_ACCOUNTS[0]!;
   const [syncing, setSyncing] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const handleSync = () => {
     if (syncing) return;
@@ -85,6 +90,8 @@ export default function AccountDetailPage() {
           </span>
           <button
             type="button"
+            onClick={() => setMenuOpen(true)}
+            aria-label="More"
             className="flex h-9 w-9 items-center justify-center rounded-[10px]"
             style={{
               background: C.surface,
@@ -98,6 +105,24 @@ export default function AccountDetailPage() {
             </svg>
           </button>
         </div>
+
+        <ActionSheet
+          open={menuOpen}
+          onClose={() => setMenuOpen(false)}
+          actions={[
+            { label: "Edit account", onClick: () => router.push(`/accounts/${acc.id}/edit`) },
+            { label: "Delete account", destructive: true, onClick: () => setConfirmDelete(true) },
+          ]}
+        />
+        <ConfirmSheet
+          open={confirmDelete}
+          title="Delete this account?"
+          body="All transactions and balance snapshots linked to this account will be removed."
+          confirmLabel="Delete"
+          destructive
+          onClose={() => setConfirmDelete(false)}
+          onConfirm={() => router.push("/home")}
+        />
 
         {/* Balance hero */}
         <section className="px-5 pb-6 pt-4 text-center">
@@ -148,6 +173,20 @@ export default function AccountDetailPage() {
               </span>
             )}
           </OutlineButton>
+        </div>
+
+        <div className="px-5 pb-5">
+          <Link
+            href="/transactions/new"
+            className="flex h-11 w-full items-center justify-center gap-2 rounded-[12px] text-[14px] font-medium"
+            style={{
+              border: `1.5px solid ${C.border}`,
+              color: C.text,
+            }}
+          >
+            <span className="text-[18px] font-light leading-none">+</span>
+            Add transaction
+          </Link>
         </div>
 
         <div className="mx-5 mb-4 h-px" style={{ background: C.border }} />

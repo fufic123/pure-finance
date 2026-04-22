@@ -12,6 +12,9 @@ from src.api.response_handlers.app.cannot_delete_system_category import (
 from src.api.response_handlers.app.category_not_found import (
     handle as handle_category_not_found,
 )
+from src.api.response_handlers.app.institution_not_found import (
+    handle as handle_institution_not_found,
+)
 from src.api.response_handlers.app.oauth_state_invalid import (
     handle as handle_oauth_state_invalid,
 )
@@ -40,6 +43,7 @@ from src.app.exceptions.access_token_invalid import AccessTokenInvalid
 from src.app.exceptions.account_not_found import AccountNotFound
 from src.app.exceptions.cannot_delete_system_category import CannotDeleteSystemCategory
 from src.app.exceptions.category_not_found import CategoryNotFound
+from src.app.exceptions.institution_not_found import InstitutionNotFound
 from src.app.exceptions.oauth_state_invalid import OAuthStateInvalid
 from src.app.exceptions.rate_limit_exceeded import RateLimitExceeded
 from src.app.exceptions.rule_not_found import RuleNotFound
@@ -54,6 +58,7 @@ def install_handlers(app: FastAPI) -> None:
     app.add_exception_handler(AccessTokenInvalid, handle_access_token_invalid)
     app.add_exception_handler(AccountNotFound, handle_account_not_found)
     app.add_exception_handler(CategoryNotFound, handle_category_not_found)
+    app.add_exception_handler(InstitutionNotFound, handle_institution_not_found)
     app.add_exception_handler(CannotDeleteSystemCategory, handle_cannot_delete_system_category)
     app.add_exception_handler(RuleNotFound, handle_rule_not_found)
     app.add_exception_handler(TransactionNotFound, handle_transaction_not_found)

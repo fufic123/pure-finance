@@ -5,13 +5,16 @@ from uuid import UUID, uuid4
 from fastapi.testclient import TestClient
 
 from src.api.dependencies import (
+    get_create_account,
     get_current_user,
     get_current_user_service,
     get_delete_account,
     get_get_account,
+    get_get_account_balance,
     get_list_accounts,
     get_list_transactions,
     get_rate_limiter,
+    get_update_account,
     get_update_transaction,
 )
 from src.api.main import create_app
@@ -127,6 +130,22 @@ def _base_overrides(app) -> None:
     app.dependency_overrides[get_get_account] = lambda: StubGetAccount()
     app.dependency_overrides[get_delete_account] = lambda: _StubDeleteAccount()
     app.dependency_overrides[get_update_transaction] = lambda: _StubUpdateTransaction()
+
+    class _NoopCreate:
+        async def __call__(self, **kwargs):
+            raise AssertionError("should not be called")
+
+    class _NoopUpdate:
+        async def __call__(self, **kwargs):
+            raise AssertionError("should not be called")
+
+    class _NoopBalance:
+        async def __call__(self, account_id, user_id):
+            raise AssertionError("should not be called")
+
+    app.dependency_overrides[get_create_account] = lambda: _NoopCreate()
+    app.dependency_overrides[get_update_account] = lambda: _NoopUpdate()
+    app.dependency_overrides[get_get_account_balance] = lambda: _NoopBalance()
 
 
 def _client_with(**service_overrides) -> TestClient:

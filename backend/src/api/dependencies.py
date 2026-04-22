@@ -12,9 +12,12 @@ from src.app.services.auth.google_callback import GoogleCallback
 from src.app.services.auth.logout import Logout
 from src.app.services.auth.refresh_tokens import RefreshTokens
 from src.app.services.auth.start_google_auth import StartGoogleAuth
-from src.app.services.banking.delete_account import DeleteAccount
-from src.app.services.banking.get_account import GetAccount
-from src.app.services.banking.list_accounts import ListAccounts
+from src.app.services.accounts.create_account import CreateAccount
+from src.app.services.accounts.delete_account import DeleteAccount
+from src.app.services.accounts.get_account import GetAccount
+from src.app.services.accounts.get_account_balance import GetAccountBalance
+from src.app.services.accounts.list_accounts import ListAccounts
+from src.app.services.accounts.update_account import UpdateAccount
 from src.app.services.banking.list_transactions import ListTransactions
 from src.app.services.banking.update_transaction import UpdateTransaction
 from src.app.services.categorization_rules.create_rule import CreateRule
@@ -83,6 +86,18 @@ def get_list_accounts(container: Container) -> ListAccounts:
 
 def get_delete_account(container: Container) -> DeleteAccount:
     return container.delete_account()
+
+
+def get_create_account(container: Container) -> CreateAccount:
+    return container.create_account()
+
+
+def get_update_account(container: Container) -> UpdateAccount:
+    return container.update_account()
+
+
+def get_get_account_balance(container: Container) -> GetAccountBalance:
+    return container.get_account_balance()
 
 
 def get_list_transactions(container: Container) -> ListTransactions:

@@ -18,8 +18,10 @@ from src.app.services.accounts.get_account import GetAccount
 from src.app.services.accounts.get_account_balance import GetAccountBalance
 from src.app.services.accounts.list_accounts import ListAccounts
 from src.app.services.accounts.update_account import UpdateAccount
-from src.app.services.banking.list_transactions import ListTransactions
-from src.app.services.banking.update_transaction import UpdateTransaction
+from src.app.services.transactions.create_transaction import CreateTransaction
+from src.app.services.transactions.delete_transaction import DeleteTransaction
+from src.app.services.transactions.list_transactions import ListTransactions
+from src.app.services.transactions.update_transaction import UpdateTransaction
 from src.app.services.categorization_rules.create_rule import CreateRule
 from src.app.services.categorization_rules.delete_rule import DeleteRule
 from src.app.services.categorization_rules.list_rules import ListRules
@@ -106,6 +108,14 @@ def get_list_transactions(container: Container) -> ListTransactions:
 
 def get_update_transaction(container: Container) -> UpdateTransaction:
     return container.update_transaction()
+
+
+def get_create_transaction(container: Container) -> CreateTransaction:
+    return container.create_transaction()
+
+
+def get_delete_transaction(container: Container) -> DeleteTransaction:
+    return container.delete_transaction()
 
 
 def get_analytics_summary(container: Container) -> GetAnalyticsSummary:

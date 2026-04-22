@@ -17,8 +17,10 @@ from src.app.services.accounts.get_account import GetAccount
 from src.app.services.accounts.get_account_balance import GetAccountBalance
 from src.app.services.accounts.list_accounts import ListAccounts
 from src.app.services.accounts.update_account import UpdateAccount
-from src.app.services.banking.list_transactions import ListTransactions
-from src.app.services.banking.update_transaction import UpdateTransaction
+from src.app.services.transactions.create_transaction import CreateTransaction
+from src.app.services.transactions.delete_transaction import DeleteTransaction
+from src.app.services.transactions.list_transactions import ListTransactions
+from src.app.services.transactions.update_transaction import UpdateTransaction
 from src.app.services.categorization_rules.create_rule import CreateRule
 from src.app.services.categorization_rules.delete_rule import DeleteRule
 from src.app.services.categorization_rules.list_rules import ListRules
@@ -146,6 +148,12 @@ class AppContainer:
 
     def update_transaction(self) -> UpdateTransaction:
         return UpdateTransaction(uow_factory=self._uow_factory)
+
+    def create_transaction(self) -> CreateTransaction:
+        return CreateTransaction(uow_factory=self._uow_factory, clock=self._clock)
+
+    def delete_transaction(self) -> DeleteTransaction:
+        return DeleteTransaction(uow_factory=self._uow_factory)
 
     def analytics_summary(self) -> GetAnalyticsSummary:
         return GetAnalyticsSummary(uow_factory=self._uow_factory)

@@ -11,7 +11,7 @@ from src.app.ports.unit_of_work import UnitOfWork
 @dataclass
 class CategoryTotal:
     category_id: UUID | None
-    total_eur: Decimal
+    total: Decimal
     count: int
 
 
@@ -44,17 +44,15 @@ class GetAnalyticsByCategory:
 
         totals: dict[UUID | None, list[Decimal]] = {}
         for t in transactions:
-            if t.eur_amount is None:
-                continue
             key = t.category_id
             if key not in totals:
                 totals[key] = []
-            totals[key].append(t.eur_amount)
+            totals[key].append(t.amount)
 
         return [
             CategoryTotal(
                 category_id=cat_id,
-                total_eur=sum(amounts, Decimal("0")),
+                total=sum(amounts, Decimal("0")),
                 count=len(amounts),
             )
             for cat_id, amounts in totals.items()

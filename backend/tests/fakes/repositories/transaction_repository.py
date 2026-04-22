@@ -11,12 +11,6 @@ class InMemoryTransactionRepository:
     async def add(self, transaction: Transaction) -> None:
         self._by_id[transaction.id] = transaction
 
-    async def get_by_external_id(self, external_id: str) -> Transaction | None:
-        for t in self._by_id.values():
-            if t.external_id == external_id:
-                return t
-        return None
-
     async def get_by_id(self, transaction_id: UUID) -> Transaction | None:
         return self._by_id.get(transaction_id)
 
@@ -53,3 +47,6 @@ class InMemoryTransactionRepository:
 
     async def update(self, transaction: Transaction) -> None:
         self._by_id[transaction.id] = transaction
+
+    async def delete(self, transaction_id: UUID) -> None:
+        self._by_id.pop(transaction_id, None)

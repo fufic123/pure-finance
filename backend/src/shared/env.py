@@ -14,9 +14,6 @@ class Settings(BaseSettings):
     google_client_secret: str
     oauth_state_lifetime_seconds: int = 600
     cors_allowed_origins: list[str] = []
-    gocardless_secret_id: str = ""
-    gocardless_secret_key: str = ""
-    bank_connection_session_lifetime_seconds: int = 3600
 
     @field_validator("cors_allowed_origins", mode="before")
     @classmethod

@@ -8,13 +8,12 @@ from uuid import UUID, uuid4
 class Transaction:
     id: UUID
     account_id: UUID
-    external_id: str
     amount: Decimal
     currency: str
     description: str
     booked_at: datetime
     created_at: datetime
-    eur_amount: Decimal | None = field(default=None)
+    external_id: str | None = field(default=None)
     category_id: UUID | None = field(default=None)
     note: str | None = field(default=None)
     manually_categorized: bool = field(default=False)
@@ -23,25 +22,25 @@ class Transaction:
     def create(
         cls,
         account_id: UUID,
-        external_id: str,
         amount: Decimal,
         currency: str,
         description: str,
         booked_at: datetime,
         now: datetime,
+        external_id: str | None = None,
     ) -> "Transaction":
         return cls(
             id=uuid4(),
             account_id=account_id,
-            external_id=external_id,
             amount=amount,
             currency=currency,
             description=description,
             booked_at=booked_at,
             created_at=now,
+            external_id=external_id,
         )
 
-    def categorize(self, category_id: UUID, *, manually: bool) -> None:
+    def categorize(self, category_id: UUID | None, *, manually: bool) -> None:
         self.category_id = category_id
         self.manually_categorized = manually
 

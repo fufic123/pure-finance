@@ -35,11 +35,10 @@ class _StubGetAnalyticsSummary:
         raises: Exception | None = None,
     ) -> None:
         self._result = result or AnalyticsSummary(
-            income_eur=Decimal("0"),
-            expenses_eur=Decimal("0"),
-            net_eur=Decimal("0"),
+            income=Decimal("0"),
+            expenses=Decimal("0"),
+            net=Decimal("0"),
             transaction_count=0,
-            transactions_without_fx=0,
         )
         self._raises = raises
 
@@ -89,11 +88,10 @@ def _no_auth_client() -> TestClient:
 class TestGetSummaryRoute:
     def test_returns_summary(self) -> None:
         summary = AnalyticsSummary(
-            income_eur=Decimal("500.00"),
-            expenses_eur=Decimal("-300.00"),
-            net_eur=Decimal("200.00"),
+            income=Decimal("500.00"),
+            expenses=Decimal("-300.00"),
+            net=Decimal("200.00"),
             transaction_count=10,
-            transactions_without_fx=1,
         )
         client = _authed_client({get_analytics_summary: _StubGetAnalyticsSummary(result=summary)})
 
@@ -101,11 +99,10 @@ class TestGetSummaryRoute:
 
         assert response.status_code == 200
         data = response.json()
-        assert Decimal(str(data["income_eur"])) == Decimal("500.00")
-        assert Decimal(str(data["expenses_eur"])) == Decimal("-300.00")
-        assert Decimal(str(data["net_eur"])) == Decimal("200.00")
+        assert Decimal(str(data["income"])) == Decimal("500.00")
+        assert Decimal(str(data["expenses"])) == Decimal("-300.00")
+        assert Decimal(str(data["net"])) == Decimal("200.00")
         assert data["transaction_count"] == 10
-        assert data["transactions_without_fx"] == 1
 
     def test_returns_404_when_account_not_owned(self) -> None:
         client = _authed_client(
@@ -126,8 +123,8 @@ class TestGetByCategoryRoute:
     def test_returns_category_totals(self) -> None:
         cat_id = uuid4()
         totals = [
-            CategoryTotal(category_id=cat_id, total_eur=Decimal("-150.00"), count=5),
-            CategoryTotal(category_id=None, total_eur=Decimal("-50.00"), count=2),
+            CategoryTotal(category_id=cat_id, total=Decimal("-150.00"), count=5),
+            CategoryTotal(category_id=None, total=Decimal("-50.00"), count=2),
         ]
         client = _authed_client(
             {get_analytics_by_category: _StubGetAnalyticsByCategory(result=totals)}
@@ -139,7 +136,7 @@ class TestGetByCategoryRoute:
         data = response.json()
         assert len(data) == 2
         assert data[0]["category_id"] == str(cat_id)
-        assert Decimal(str(data[0]["total_eur"])) == Decimal("-150.00")
+        assert Decimal(str(data[0]["total"])) == Decimal("-150.00")
         assert data[0]["count"] == 5
         assert data[1]["category_id"] is None
 

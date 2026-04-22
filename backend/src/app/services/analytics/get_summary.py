@@ -10,11 +10,10 @@ from src.app.ports.unit_of_work import UnitOfWork
 
 @dataclass
 class AnalyticsSummary:
-    income_eur: Decimal
-    expenses_eur: Decimal
-    net_eur: Decimal
+    income: Decimal
+    expenses: Decimal
+    net: Decimal
     transaction_count: int
-    transactions_without_fx: int
 
 
 class GetAnalyticsSummary:
@@ -46,20 +45,15 @@ class GetAnalyticsSummary:
 
         income = Decimal("0")
         expenses = Decimal("0")
-        without_fx = 0
         for t in transactions:
-            if t.eur_amount is None:
-                without_fx += 1
-                continue
-            if t.eur_amount >= 0:
-                income += t.eur_amount
+            if t.amount >= 0:
+                income += t.amount
             else:
-                expenses += t.eur_amount
+                expenses += t.amount
 
         return AnalyticsSummary(
-            income_eur=income,
-            expenses_eur=expenses,
-            net_eur=income + expenses,
+            income=income,
+            expenses=expenses,
+            net=income + expenses,
             transaction_count=len(transactions),
-            transactions_without_fx=without_fx,
         )

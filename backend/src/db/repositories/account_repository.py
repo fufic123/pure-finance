@@ -18,11 +18,6 @@ class PostgresAccountRepository:
         model = await self._session.get(AccountModel, account_id)
         return self._to_entity(model) if model else None
 
-    async def get_by_external_id(self, external_id: str) -> Account | None:
-        stmt = select(AccountModel).where(AccountModel.external_id == external_id)
-        model = (await self._session.execute(stmt)).scalar_one_or_none()
-        return self._to_entity(model) if model else None
-
     async def list_by_user(self, user_id: UUID) -> list[Account]:
         stmt = select(AccountModel).where(AccountModel.user_id == user_id)
         models = (await self._session.execute(stmt)).scalars().all()
@@ -38,19 +33,11 @@ class PostgresAccountRepository:
             delete(AccountModel).where(AccountModel.id == account_id)
         )
 
-    async def delete_by_connection_session(self, session_id: UUID) -> None:
-        await self._session.execute(
-            delete(AccountModel).where(AccountModel.connection_session_id == session_id)
-        )
-
     @staticmethod
     def _to_entity(model: AccountModel) -> Account:
         return Account(
             id=model.id,
             user_id=model.user_id,
-            connection_session_id=model.connection_session_id,
-            institution_external_id=model.institution_external_id,
-            external_id=model.external_id,
             iban=model.iban,
             currency=model.currency,
             name=model.name,
@@ -62,9 +49,6 @@ class PostgresAccountRepository:
         return AccountModel(
             id=entity.id,
             user_id=entity.user_id,
-            connection_session_id=entity.connection_session_id,
-            institution_external_id=entity.institution_external_id,
-            external_id=entity.external_id,
             iban=entity.iban,
             currency=entity.currency,
             name=entity.name,

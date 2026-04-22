@@ -3,20 +3,14 @@ from types import TracebackType
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from src.app.ports.repositories.account_repository import AccountRepository
-from src.app.ports.repositories.balance_repository import BalanceRepository
 from src.app.ports.repositories.categorization_rule_repository import CategorizationRuleRepository
 from src.app.ports.repositories.category_repository import CategoryRepository
-from src.app.ports.repositories.connection_session_repository import ConnectionSessionRepository
-from src.app.ports.repositories.fx_rate_repository import FxRateRepository
 from src.app.ports.repositories.refresh_token_repository import RefreshTokenRepository
 from src.app.ports.repositories.transaction_repository import TransactionRepository
 from src.app.ports.repositories.user_repository import UserRepository
 from src.db.repositories.account_repository import PostgresAccountRepository
-from src.db.repositories.balance_repository import PostgresBalanceRepository
 from src.db.repositories.categorization_rule_repository import PostgresCategorizationRuleRepository
 from src.db.repositories.category_repository import PostgresCategoryRepository
-from src.db.repositories.connection_session_repository import PostgresConnectionSessionRepository
-from src.db.repositories.fx_rate_repository import PostgresFxRateRepository
 from src.db.repositories.refresh_token_repository import PostgresRefreshTokenRepository
 from src.db.repositories.transaction_repository import PostgresTransactionRepository
 from src.db.repositories.user_repository import PostgresUserRepository
@@ -26,10 +20,7 @@ class SqlAlchemyUnitOfWork:
     users: UserRepository
     refresh_tokens: RefreshTokenRepository
     accounts: AccountRepository
-    connection_sessions: ConnectionSessionRepository
     transactions: TransactionRepository
-    fx_rates: FxRateRepository
-    balances: BalanceRepository
     categories: CategoryRepository
     categorization_rules: CategorizationRuleRepository
 
@@ -42,10 +33,7 @@ class SqlAlchemyUnitOfWork:
         self.users = PostgresUserRepository(self._session)
         self.refresh_tokens = PostgresRefreshTokenRepository(self._session)
         self.accounts = PostgresAccountRepository(self._session)
-        self.connection_sessions = PostgresConnectionSessionRepository(self._session)
         self.transactions = PostgresTransactionRepository(self._session)
-        self.fx_rates = PostgresFxRateRepository(self._session)
-        self.balances = PostgresBalanceRepository(self._session)
         self.categories = PostgresCategoryRepository(self._session)
         self.categorization_rules = PostgresCategorizationRuleRepository(self._session)
         return self

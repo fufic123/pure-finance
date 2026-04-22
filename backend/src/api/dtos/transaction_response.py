@@ -12,7 +12,6 @@ class TransactionResponse(BaseModel):
     account_id: UUID
     amount: Decimal
     currency: str
-    eur_amount: Decimal | None
     description: str
     booked_at: datetime
     category_id: UUID | None
@@ -26,7 +25,6 @@ class TransactionResponse(BaseModel):
             account_id=transaction.account_id,
             amount=transaction.amount,
             currency=transaction.currency,
-            eur_amount=transaction.eur_amount,
             description=transaction.description,
             booked_at=transaction.booked_at,
             category_id=transaction.category_id,

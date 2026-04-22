@@ -1,7 +1,7 @@
 from datetime import date
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db.models.transaction import TransactionModel
@@ -17,11 +17,6 @@ class PostgresTransactionRepository:
 
     async def get_by_id(self, transaction_id: UUID) -> Transaction | None:
         stmt = select(TransactionModel).where(TransactionModel.id == transaction_id)
-        model = (await self._session.execute(stmt)).scalar_one_or_none()
-        return self._to_entity(model) if model else None
-
-    async def get_by_external_id(self, external_id: str) -> Transaction | None:
-        stmt = select(TransactionModel).where(TransactionModel.external_id == external_id)
         model = (await self._session.execute(stmt)).scalar_one_or_none()
         return self._to_entity(model) if model else None
 
@@ -71,10 +66,14 @@ class PostgresTransactionRepository:
     async def update(self, transaction: Transaction) -> None:
         stmt = select(TransactionModel).where(TransactionModel.id == transaction.id)
         model = (await self._session.execute(stmt)).scalar_one()
-        model.eur_amount = transaction.eur_amount
         model.category_id = transaction.category_id
         model.note = transaction.note
         model.manually_categorized = transaction.manually_categorized
+
+    async def delete(self, transaction_id: UUID) -> None:
+        await self._session.execute(
+            delete(TransactionModel).where(TransactionModel.id == transaction_id)
+        )
 
     @staticmethod
     def _to_entity(model: TransactionModel) -> Transaction:
@@ -87,7 +86,6 @@ class PostgresTransactionRepository:
             description=model.description,
             booked_at=model.booked_at,
             created_at=model.created_at,
-            eur_amount=model.eur_amount,
             category_id=model.category_id,
             note=model.note,
             manually_categorized=model.manually_categorized,
@@ -104,7 +102,6 @@ class PostgresTransactionRepository:
             description=entity.description,
             booked_at=entity.booked_at,
             created_at=entity.created_at,
-            eur_amount=entity.eur_amount,
             category_id=entity.category_id,
             note=entity.note,
             manually_categorized=entity.manually_categorized,

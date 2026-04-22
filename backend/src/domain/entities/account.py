@@ -7,9 +7,6 @@ from uuid import UUID, uuid4
 class Account:
     id: UUID
     user_id: UUID
-    connection_session_id: UUID
-    institution_external_id: str
-    external_id: str
     iban: str | None
     currency: str
     name: str
@@ -19,9 +16,6 @@ class Account:
     def create(
         cls,
         user_id: UUID,
-        connection_session_id: UUID,
-        institution_external_id: str,
-        external_id: str,
         iban: str | None,
         currency: str,
         name: str,
@@ -30,9 +24,6 @@ class Account:
         return cls(
             id=uuid4(),
             user_id=user_id,
-            connection_session_id=connection_session_id,
-            institution_external_id=institution_external_id,
-            external_id=external_id,
             iban=iban,
             currency=currency,
             name=name,

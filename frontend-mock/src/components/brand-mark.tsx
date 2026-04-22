@@ -1,10 +1,21 @@
-export function BrandMark() {
+import { GRAD_METALLIC, pfTheme } from "@/lib/tokens";
+
+type Props = { dark?: boolean };
+
+/**
+ * Small Pure Finance wordmark used at the top of LandingB — gold dot + label.
+ */
+export function BrandMark({ dark = false }: Props) {
+  const C = pfTheme(dark);
   return (
-    <div
-      className="flex h-[72px] w-[72px] items-center justify-center rounded-2xl"
-      style={{ background: "#0A0A0A", boxShadow: "inset 0 0 0 1px #1F1F1F" }}
-    >
-      <div className="h-9 w-[3px] rounded-[2px] bg-gold-metallic" />
+    <div className="flex items-center gap-1.5">
+      <div className="h-2 w-2 rounded-full" style={{ background: GRAD_METALLIC }} />
+      <span
+        className="text-[14px] font-medium tracking-[0.2px]"
+        style={{ color: C.text }}
+      >
+        Pure Finance
+      </span>
     </div>
   );
 }

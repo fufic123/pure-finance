@@ -1,4 +1,4 @@
-import { GOLD_TEXT_STYLE } from "@/lib/tokens";
+import { GOLD_TEXT_STYLE, pfTheme } from "@/lib/tokens";
 
 type Segment = {
   label: string;
@@ -13,6 +13,7 @@ type Props = {
   centerLabel: string;
   centerSub?: string;
   focusedIndex?: number;
+  dark?: boolean;
 };
 
 export function DonutChart({
@@ -22,14 +23,15 @@ export function DonutChart({
   centerLabel,
   centerSub = "total",
   focusedIndex,
+  dark = false,
 }: Props) {
+  const C = pfTheme(dark);
   const r = (size - thickness) / 2;
   const cx = size / 2;
   const cy = size / 2;
   const circ = 2 * Math.PI * r;
   let acc = 0;
 
-  // If a segment is focused, paint it with gold subtle gradient via a url ref.
   const gradId = "pf-donut-gold-subtle";
 
   return (
@@ -46,13 +48,12 @@ export function DonutChart({
             <stop offset="100%" stopColor="#C9A227" />
           </linearGradient>
         </defs>
-        {/* Track */}
         <circle
           cx={cx}
           cy={cy}
           r={r}
           fill="none"
-          stroke="rgba(255,255,255,0.08)"
+          stroke={C.border}
           strokeWidth={thickness}
         />
         {segments.map((seg, i) => {
@@ -82,7 +83,9 @@ export function DonutChart({
         >
           {centerLabel}
         </div>
-        <div className="mt-1 text-[10px] text-white/40">{centerSub}</div>
+        <div className="mt-1 text-[10px]" style={{ color: C.muted }}>
+          {centerSub}
+        </div>
       </div>
     </div>
   );

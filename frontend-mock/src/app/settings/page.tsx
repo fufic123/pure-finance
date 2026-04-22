@@ -4,34 +4,19 @@ import Link from "next/link";
 import type { Route } from "next";
 import { motion } from "framer-motion";
 import { MOCK_USER } from "@/lib/mock";
-import { GRAD_METALLIC, PF } from "@/lib/tokens";
+import { GRAD_METALLIC, PF, pfTheme } from "@/lib/tokens";
+import { useTheme, type ThemeMode } from "@/lib/theme";
 import { PageTransition } from "@/components/page-transition";
 import { TabBar } from "@/components/tab-bar";
 
-type Row = {
-  label: string;
-  href?: Route;
-  meta?: string;
-  destructive?: boolean;
-};
-
-const TOP_ROWS: Row[] = [
-  { label: "Banks & Sync", href: "/settings/banks" },
-  { label: "Categories", href: "/settings/categories" },
-  { label: "Rules", href: "/settings/rules" },
-  { label: "Appearance", meta: "System" },
-];
-
-const DANGER_ROWS: Row[] = [{ label: "Log out", destructive: true }];
-
-function ChevronRight() {
+function ChevronRight({ color }: { color: string }) {
   return (
     <svg
       width="14"
       height="14"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="currentColor"
+      stroke={color}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -41,43 +26,109 @@ function ChevronRight() {
   );
 }
 
+const MODES: { key: ThemeMode; label: string }[] = [
+  { key: "system", label: "System" },
+  { key: "light", label: "Light" },
+  { key: "dark", label: "Dark" },
+];
+
 export default function SettingsPage() {
+  const { dark, mode, setTheme } = useTheme();
+  const C = pfTheme(dark);
+
   return (
     <PageTransition>
-      <main className="pf-safe-top min-h-screen bg-pf-black pb-[96px]">
+      <main
+        className="pf-safe-top min-h-screen pb-[96px]"
+        style={{ background: C.bg }}
+      >
         <header className="flex h-[52px] items-center justify-between px-5">
-          <span className="text-[20px] font-semibold tracking-tight text-pf-white">Settings</span>
+          <span
+            className="text-[20px] font-semibold tracking-tight"
+            style={{ color: C.text }}
+          >
+            Settings
+          </span>
         </header>
 
         {/* Profile */}
-        <section className="mx-5 mb-5 mt-2 flex items-center gap-3.5 rounded-[13px] border border-white/[0.08] bg-white/[0.03] p-4">
+        <section
+          className="mx-5 mb-5 mt-2 flex items-center gap-3.5 rounded-[13px] p-4"
+          style={{
+            border: `1px solid ${C.border}`,
+            background: dark ? "#1A1A1A" : "#F7F7F7",
+          }}
+        >
           <div
-            className="flex h-12 w-12 items-center justify-center rounded-[12px] text-[18px] font-semibold text-pf-black"
-            style={{ background: GRAD_METALLIC }}
+            className="flex h-12 w-12 items-center justify-center rounded-[12px] text-[18px] font-semibold"
+            style={{ background: GRAD_METALLIC, color: "#0A0A0A" }}
           >
             {MOCK_USER.name.charAt(0)}
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-[16px] font-medium text-pf-white">{MOCK_USER.email}</div>
-            <div className="text-[12px] text-white/40">{MOCK_USER.joined}</div>
+            <div
+              className="truncate text-[16px] font-medium"
+              style={{ color: C.text }}
+            >
+              {MOCK_USER.email}
+            </div>
+            <div className="text-[12px]" style={{ color: C.muted }}>
+              {MOCK_USER.joined}
+            </div>
           </div>
         </section>
 
-        {/* Main group */}
-        <Group>
-          {TOP_ROWS.map((r, i) => (
-            <SettingRow key={r.label} row={r} last={i === TOP_ROWS.length - 1} />
-          ))}
+        <Group dark={dark}>
+          <LinkRow label="Banks & Sync" href="/settings/banks" dark={dark} />
+          <LinkRow label="Categories" href="/settings/categories" dark={dark} />
+          <LinkRow label="Rules" href="/settings/rules" dark={dark} last />
+        </Group>
+
+        {/* Appearance group — theme switcher */}
+        <Group dark={dark}>
+          <div className="px-4 pt-3 pb-1">
+            <span
+              className="text-[12px] font-medium uppercase tracking-[0.3px]"
+              style={{ color: C.muted }}
+            >
+              Appearance
+            </span>
+          </div>
+          <div className="px-3 pb-3">
+            <div
+              className="flex rounded-[10px] p-1"
+              style={{ background: dark ? "#0A0A0A" : "#FFFFFF" }}
+            >
+              {MODES.map((m) => {
+                const on = m.key === mode;
+                return (
+                  <button
+                    key={m.key}
+                    type="button"
+                    onClick={() => setTheme(m.key)}
+                    className="flex-1 rounded-[8px] py-2 text-[13px] font-medium"
+                    style={{
+                      background: on ? (dark ? "#1F1F1F" : "#F0F0F0") : "transparent",
+                      color: on ? C.text : C.muted,
+                    }}
+                  >
+                    {m.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </Group>
 
         {/* Danger */}
-        <Group>
-          {DANGER_ROWS.map((r, i) => (
-            <SettingRow key={r.label} row={r} last={i === DANGER_ROWS.length - 1} />
-          ))}
+        <Group dark={dark}>
+          <ButtonRow label="Log out" dark={dark} destructive last />
         </Group>
 
-        <p className="px-5 pb-8 pt-4 text-center text-[11px] text-white/25">
+        <p
+          className="px-5 pb-8 pt-4 text-center text-[11px]"
+          style={{ color: C.muted }}
+        >
           Pure Finance · design preview
         </p>
 
@@ -87,43 +138,85 @@ export default function SettingsPage() {
   );
 }
 
-function Group({ children }: { children: React.ReactNode }) {
+function Group({
+  children,
+  dark,
+}: {
+  children: React.ReactNode;
+  dark: boolean;
+}) {
+  const C = pfTheme(dark);
   return (
-    <div className="mx-5 mb-5 overflow-hidden rounded-[13px] border border-white/[0.08] bg-white/[0.03]">
+    <div
+      className="mx-5 mb-5 overflow-hidden rounded-[13px]"
+      style={{
+        border: `1px solid ${C.border}`,
+        background: dark ? "#1A1A1A" : "#F7F7F7",
+      }}
+    >
       {children}
     </div>
   );
 }
 
-function SettingRow({ row, last }: { row: Row; last: boolean }) {
-  const content = (
-    <motion.div
-      whileTap={{ scale: 0.995 }}
-      className={
-        "flex h-12 items-center justify-between px-4 " +
-        (last ? "" : "border-b border-white/[0.06]")
-      }
-    >
-      <span
-        className="text-[15px]"
-        style={{ color: row.destructive ? PF.expense : "#FFFFFF" }}
+function LinkRow({
+  label,
+  href,
+  dark,
+  last = false,
+}: {
+  label: string;
+  href: Route;
+  dark: boolean;
+  last?: boolean;
+}) {
+  const C = pfTheme(dark);
+  return (
+    <Link href={href} className="block">
+      <motion.div
+        whileTap={{ scale: 0.995 }}
+        className="flex h-12 items-center justify-between px-4"
+        style={{
+          borderBottom: last ? "none" : `1px solid ${C.subtleBorder}`,
+        }}
       >
-        {row.label}
-      </span>
-      <div className="flex items-center gap-2 text-white/40">
-        {row.meta ? <span className="text-[14px]">{row.meta}</span> : null}
-        {row.href ? <ChevronRight /> : null}
-      </div>
-    </motion.div>
-  );
-
-  return row.href ? (
-    <Link href={row.href} className="block active:bg-white/[0.02]">
-      {content}
+        <span className="text-[15px]" style={{ color: C.text }}>
+          {label}
+        </span>
+        <ChevronRight color={C.muted} />
+      </motion.div>
     </Link>
-  ) : (
-    <button type="button" className="block w-full text-left active:bg-white/[0.02]">
-      {content}
+  );
+}
+
+function ButtonRow({
+  label,
+  dark,
+  destructive = false,
+  last = false,
+}: {
+  label: string;
+  dark: boolean;
+  destructive?: boolean;
+  last?: boolean;
+}) {
+  const C = pfTheme(dark);
+  return (
+    <button type="button" className="block w-full text-left">
+      <motion.div
+        whileTap={{ scale: 0.995 }}
+        className="flex h-12 items-center justify-between px-4"
+        style={{
+          borderBottom: last ? "none" : `1px solid ${C.subtleBorder}`,
+        }}
+      >
+        <span
+          className="text-[15px]"
+          style={{ color: destructive ? PF.expense : C.text }}
+        >
+          {label}
+        </span>
+      </motion.div>
     </button>
   );
 }

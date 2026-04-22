@@ -1,35 +1,85 @@
 "use client";
 
-import { useState } from "react";
-import { MOCK_TRANSACTIONS } from "@/lib/mock";
-import { PF } from "@/lib/tokens";
-import { TopBar } from "@/components/top-bar";
+import { useState, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
+import {
+  MOCK_MERCHANT_AVG,
+  MOCK_MERCHANT_HISTORY,
+  MOCK_TRANSACTIONS,
+} from "@/lib/mock";
+import { PF, pfTheme } from "@/lib/tokens";
+import { useTheme } from "@/lib/theme";
 import { PageTransition } from "@/components/page-transition";
-import type { ReactNode } from "react";
+import { MerchantAvatar } from "@/components/merchant-avatar";
+
+function IcChevronLeft({ color }: { color: string }) {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke={color}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M15 18l-6-6 6-6" />
+    </svg>
+  );
+}
 
 export default function TransactionDetailPage() {
-  const tx = MOCK_TRANSACTIONS[0]!; // first (Bolt Food) — mock detail target
+  const tx = MOCK_TRANSACTIONS[0]!; // Bolt Food · −€18.90
+  const router = useRouter();
+  const { dark } = useTheme();
+  const C = pfTheme(dark);
   const [note, setNote] = useState("");
   const [editNote, setEditNote] = useState(false);
 
-  const merchantHistory = [
-    { date: "Apr 14", amount: "−€14.60" },
-    { date: "Apr 7", amount: "−€22.10" },
-    { date: "Mar 31", amount: "−€17.50" },
-  ];
-
   return (
     <PageTransition>
-      <main className="min-h-screen bg-pf-black pb-20">
-        <TopBar title="Transaction" back="/transactions" />
+      <main className="min-h-screen pb-20" style={{ background: C.bg }}>
+        {/* Top bar */}
+        <div className="flex h-[52px] items-center justify-between px-4">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="flex items-center gap-0.5"
+            style={{ color: C.muted }}
+          >
+            <IcChevronLeft color={C.muted} />
+            <span className="text-[15px]">Back</span>
+          </button>
+          <span
+            className="text-[17px] font-semibold"
+            style={{ color: C.text }}
+          >
+            Transaction
+          </span>
+          <button
+            type="button"
+            className="flex h-9 w-9 items-center justify-center rounded-[10px]"
+            style={{
+              background: C.surface,
+              border: `1px solid ${C.border}`,
+            }}
+          >
+            <svg width="18" height="4" viewBox="0 0 18 4" fill={C.muted}>
+              <circle cx="2" cy="2" r="2" />
+              <circle cx="9" cy="2" r="2" />
+              <circle cx="16" cy="2" r="2" />
+            </svg>
+          </button>
+        </div>
 
         {/* Amount hero */}
-        <section className="border-b border-white/[0.08] px-5 pb-7 pt-6 text-center">
-          <div
-            className="mx-auto mb-4 flex h-[52px] w-[52px] items-center justify-center rounded-[14px] text-[22px]"
-            style={{ background: "#191C1F" }}
-          >
-            <span aria-hidden>{"\u{1F6F5}"}</span>
+        <section
+          className="px-5 pb-7 pt-6 text-center"
+          style={{ borderBottom: `1px solid ${C.border}` }}
+        >
+          <div className="mb-4">
+            <MerchantAvatar />
           </div>
           <div
             className="text-[44px] font-bold leading-none tracking-[-1.5px] tabular-nums"
@@ -37,26 +87,41 @@ export default function TransactionDetailPage() {
           >
             {tx.amount}
           </div>
-          <div className="mt-2.5 text-[19px] font-medium text-pf-white">{tx.desc}</div>
-          <div className="mt-1.5 text-[13px] text-white/45">
+          <div
+            className="mt-2.5 text-[19px] font-medium"
+            style={{ color: C.text }}
+          >
+            {tx.desc}
+          </div>
+          <div className="mt-1.5 text-[13px]" style={{ color: C.muted }}>
             21 Apr 2026 · 09:23 · Revolut
           </div>
         </section>
 
         {/* Detail rows */}
         <div className="mt-2">
-          <Row label="Category">
+          <Row label="Category" dark={dark}>
             <div className="flex items-center gap-2">
-              <span className="rounded-full bg-white/[0.08] px-2.5 py-[3px] text-[14px] text-pf-white">
+              <span
+                className="rounded-full px-2.5 py-[3px] text-[14px]"
+                style={{
+                  background: dark ? "#2A2A2A" : "#F0F0F0",
+                  color: C.text,
+                }}
+              >
                 {tx.cat}
               </span>
-              <button type="button" className="text-[13px]" style={{ color: PF.goldBase }}>
+              <button
+                type="button"
+                className="text-[13px]"
+                style={{ color: PF.goldBase }}
+              >
                 Edit
               </button>
             </div>
           </Row>
 
-          <Row label="Account">
+          <Row label="Account" dark={dark}>
             <div className="flex items-center gap-1.5">
               <span
                 className="flex h-5 w-5 items-center justify-center rounded-[5px] text-[9px] font-bold text-white"
@@ -64,21 +129,35 @@ export default function TransactionDetailPage() {
               >
                 R
               </span>
-              <span className="text-[15px] text-pf-white">Revolut</span>
+              <span className="text-[15px]" style={{ color: C.text }}>
+                Revolut
+              </span>
             </div>
           </Row>
 
-          <Row label="Date & time">
-            <span className="text-[15px] text-pf-white">21 Apr 2026, 09:23</span>
+          <Row label="Date & time" dark={dark}>
+            <span className="text-[15px]" style={{ color: C.text }}>
+              21 Apr 2026, 09:23
+            </span>
           </Row>
 
-          <Row label="Currency">
-            <span className="text-[15px] text-pf-white">EUR</span>
+          <Row label="Currency" dark={dark}>
+            <span className="text-[15px]" style={{ color: C.text }}>
+              EUR
+            </span>
           </Row>
 
-          <div className="border-b border-white/[0.06] px-5 py-3">
-            <div className="mb-2 flex items-center justify-between">
-              <span className="text-[15px] text-white/45">Note</span>
+          <div
+            className="px-5 py-3"
+            style={{ borderBottom: `1px solid ${C.subtleBorder}` }}
+          >
+            <div
+              className="flex items-center justify-between"
+              style={{ marginBottom: editNote || note ? 8 : 0 }}
+            >
+              <span className="text-[15px]" style={{ color: C.muted }}>
+                Note
+              </span>
               <button
                 type="button"
                 onClick={() => setEditNote((e) => !e)}
@@ -94,10 +173,20 @@ export default function TransactionDetailPage() {
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="e.g. team lunch, reimbursable"
-                className="min-h-[56px] w-full resize-none rounded-[8px] border border-white/[0.08] bg-white/[0.04] p-2.5 text-[14px] leading-[1.5] text-pf-white outline-none placeholder:text-white/30"
+                className="min-h-[56px] w-full resize-none rounded-[8px] p-2.5 text-[14px] leading-[1.5] outline-none"
+                style={{
+                  background: C.surface,
+                  border: `1px solid ${C.border}`,
+                  color: C.text,
+                }}
               />
             ) : note ? (
-              <div className="text-[14px] leading-[1.5] text-pf-white">{note}</div>
+              <div
+                className="text-[14px] leading-[1.5]"
+                style={{ color: C.text }}
+              >
+                {note}
+              </div>
             ) : null}
           </div>
         </div>
@@ -105,15 +194,25 @@ export default function TransactionDetailPage() {
         {/* Merchant history */}
         <section className="mt-5">
           <div className="flex items-center justify-between px-5 pb-2.5">
-            <span className="text-[15px] font-semibold text-pf-white">Bolt Food · history</span>
-            <span className="text-[13px] text-white/40">last 3</span>
+            <span
+              className="text-[15px] font-semibold"
+              style={{ color: C.text }}
+            >
+              Bolt Food · history
+            </span>
+            <span className="text-[13px]" style={{ color: C.muted }}>
+              last 3
+            </span>
           </div>
-          {merchantHistory.map((h) => (
+          {MOCK_MERCHANT_HISTORY.map((h) => (
             <div
               key={h.date}
-              className="flex h-12 items-center justify-between border-t border-white/[0.06] px-5"
+              className="flex h-12 items-center justify-between px-5"
+              style={{ borderTop: `1px solid ${C.subtleBorder}` }}
             >
-              <span className="text-[14px] text-white/45">{h.date}</span>
+              <span className="text-[14px]" style={{ color: C.muted }}>
+                {h.date}
+              </span>
               <span
                 className="text-[14px] font-medium tabular-nums"
                 style={{ color: PF.expense }}
@@ -122,9 +221,22 @@ export default function TransactionDetailPage() {
               </span>
             </div>
           ))}
-          <div className="mx-5 mt-3 flex items-center justify-between rounded-[10px] border border-white/[0.08] bg-white/[0.04] px-3.5 py-2.5">
-            <span className="text-[13px] text-white/45">Avg charge · last 3 months</span>
-            <span className="text-[14px] font-semibold tabular-nums text-pf-white">−€18.30</span>
+          <div
+            className="mx-5 mt-3 flex items-center justify-between rounded-[10px] px-3.5 py-2.5"
+            style={{
+              background: dark ? "#1A1A1A" : "#F7F7F7",
+              border: `1px solid ${C.border}`,
+            }}
+          >
+            <span className="text-[13px]" style={{ color: C.muted }}>
+              Avg charge · last 3 months
+            </span>
+            <span
+              className="text-[14px] font-semibold tabular-nums"
+              style={{ color: C.text }}
+            >
+              {MOCK_MERCHANT_AVG}
+            </span>
           </div>
         </section>
       </main>
@@ -132,10 +244,27 @@ export default function TransactionDetailPage() {
   );
 }
 
-function Row({ label, children }: { label: string; children: ReactNode }) {
+function Row({
+  label,
+  dark,
+  children,
+}: {
+  label: string;
+  dark: boolean;
+  children: ReactNode;
+}) {
+  const C = pfTheme(dark);
   return (
-    <div className="flex min-h-[52px] items-center justify-between border-b border-white/[0.06] px-5">
-      <span className="flex-shrink-0 text-[15px] text-white/45">{label}</span>
+    <div
+      className="flex min-h-[52px] items-center justify-between px-5"
+      style={{ borderBottom: `1px solid ${C.subtleBorder}` }}
+    >
+      <span
+        className="flex-shrink-0 text-[15px]"
+        style={{ color: C.muted }}
+      >
+        {label}
+      </span>
       <div className="text-right">{children}</div>
     </div>
   );

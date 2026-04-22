@@ -2,10 +2,12 @@
 
 import type { ButtonHTMLAttributes } from "react";
 import { motion } from "framer-motion";
+import { pfTheme } from "@/lib/tokens";
 
-type Props = ButtonHTMLAttributes<HTMLButtonElement>;
+type Props = ButtonHTMLAttributes<HTMLButtonElement> & { dark?: boolean };
 
-export function OutlineButton({ children, className = "", ...rest }: Props) {
+export function OutlineButton({ children, className = "", dark = false, ...rest }: Props) {
+  const C = pfTheme(dark);
   return (
     <motion.button
       type="button"
@@ -13,10 +15,15 @@ export function OutlineButton({ children, className = "", ...rest }: Props) {
       {...rest}
       className={
         "flex h-12 w-full items-center justify-center gap-2 rounded-[12px] " +
-        "border border-white/15 text-pf-white text-[15px] font-medium select-none " +
-        "active:bg-white/5 disabled:pointer-events-none disabled:opacity-50 " +
+        "text-[15px] font-medium select-none " +
+        "disabled:pointer-events-none disabled:opacity-50 " +
         className
       }
+      style={{
+        border: `1.5px solid ${C.border}`,
+        color: C.text,
+        background: "transparent",
+      }}
     >
       {children}
     </motion.button>

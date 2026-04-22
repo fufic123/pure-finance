@@ -2,20 +2,21 @@
 
 import Link from "next/link";
 import { MOCK_CONNECTIONS, type ConnectionStatus } from "@/lib/mock";
-import { GRAD_METALLIC, PF } from "@/lib/tokens";
+import { GRAD_METALLIC, PF, pfTheme } from "@/lib/tokens";
+import { useTheme } from "@/lib/theme";
 import { TopBar } from "@/components/top-bar";
 import { PageTransition } from "@/components/page-transition";
 import { StaggerItem, StaggerList } from "@/components/stagger-list";
 import { TabBar } from "@/components/tab-bar";
 
-function ChevronRight() {
+function ChevronRight({ color }: { color: string }) {
   return (
     <svg
       width="14"
       height="14"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="currentColor"
+      stroke={color}
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -39,23 +40,32 @@ function statusColor(status: ConnectionStatus): { bg: string; fg: string; label:
 }
 
 export default function BanksPage() {
+  const { dark } = useTheme();
+  const C = pfTheme(dark);
+
   return (
     <PageTransition>
-      <main className="min-h-screen bg-pf-black pb-[96px]">
-        <TopBar title="Banks" back="/settings" />
+      <main
+        className="min-h-screen pb-[96px]"
+        style={{ background: C.bg }}
+      >
+        <TopBar title="Banks" back />
 
         <div className="px-5 py-3">
           <Link
             href="/onboarding"
-            className="flex h-[52px] items-center justify-center gap-2 rounded-[14px] text-[15px] font-semibold text-pf-black active:opacity-90"
-            style={{ background: GRAD_METALLIC }}
+            className="flex h-[52px] items-center justify-center gap-2 rounded-[14px] text-[15px] font-semibold active:opacity-90"
+            style={{ background: GRAD_METALLIC, color: "#0A0A0A" }}
           >
             + Add bank
           </Link>
         </div>
 
         <div className="mb-1 px-5">
-          <span className="text-[12px] uppercase tracking-[0.3px] text-white/40">
+          <span
+            className="text-[12px] uppercase tracking-[0.3px]"
+            style={{ color: C.muted }}
+          >
             Connected
           </span>
         </div>
@@ -67,7 +77,8 @@ export default function BanksPage() {
               <StaggerItem key={conn.id} className="list-none">
                 <button
                   type="button"
-                  className="flex w-full items-center gap-3.5 border-b border-white/[0.06] px-5 py-3 text-left active:bg-white/[0.02]"
+                  className="flex w-full items-center gap-3.5 px-5 py-3 text-left"
+                  style={{ borderBottom: `1px solid ${C.subtleBorder}` }}
                 >
                   <div
                     className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-[10px] text-[14px] font-bold text-white"
@@ -77,7 +88,10 @@ export default function BanksPage() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="truncate text-[15px] font-medium text-pf-white">
+                      <span
+                        className="truncate text-[15px] font-medium"
+                        style={{ color: C.text }}
+                      >
                         {conn.bank.name}
                       </span>
                       <span
@@ -87,11 +101,11 @@ export default function BanksPage() {
                         {s.label}
                       </span>
                     </div>
-                    <div className="text-[12px] text-white/40">Added {conn.created}</div>
+                    <div className="text-[12px]" style={{ color: C.muted }}>
+                      Added {conn.created}
+                    </div>
                   </div>
-                  <span className="text-white/40">
-                    <ChevronRight />
-                  </span>
+                  <ChevronRight color={C.muted} />
                 </button>
               </StaggerItem>
             );

@@ -39,11 +39,17 @@
 
 html,
 body {
-  background: var(--pf-black);
-  color: var(--pf-white);
+  background: var(--pf-white);
+  color: var(--pf-black);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior-y: none;
+}
+
+html[data-pf-theme="dark"],
+html[data-pf-theme="dark"] body {
+  background: var(--pf-black);
+  color: var(--pf-white);
 }
 
 .pf-gold-text {
@@ -68,4 +74,10 @@ body {
 .pf-noscrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+@keyframes pf-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }

@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { MOCK_CATEGORIES } from "@/lib/mock";
-import { GRAD_METALLIC, PF } from "@/lib/tokens";
+import { GRAD_METALLIC, PF, pfTheme } from "@/lib/tokens";
+import { useTheme } from "@/lib/theme";
 import { PageTransition } from "@/components/page-transition";
 import { StaggerItem, StaggerList } from "@/components/stagger-list";
 import { TabBar } from "@/components/tab-bar";
@@ -11,18 +12,20 @@ import { DonutChart } from "@/components/donut-chart";
 import { CategoryBar } from "@/components/category-bar";
 
 const CHIPS = ["This month", "All accounts", "April 2026"] as const;
+type Chip = (typeof CHIPS)[number];
 
-// Grayscale-ish palette, ordered by rank.
-const DOTS = ["#F0F0F0", "#BFBFBF", "#8E8E8E", "#5C5C5C", "#3A3A3A"];
+// Grayscale palette, ordered by rank (switches between light/dark).
+const LIGHT_DOTS = ["#0A0A0A", "#4A4A4A", "#8A8A8A", "#BBBBBB", "#DEDEDE"];
+const DARK_DOTS = ["#F0F0F0", "#BFBFBF", "#8E8E8E", "#5C5C5C", "#3A3A3A"];
 
-function IcFilter() {
+function IcFilter({ color }: { color: string }) {
   return (
     <svg
       width="20"
       height="20"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="currentColor"
+      stroke={color}
       strokeWidth="1.6"
       strokeLinecap="round"
     >
@@ -34,7 +37,11 @@ function IcFilter() {
 }
 
 export default function AnalyticsPage() {
-  const [active, setActive] = useState<(typeof CHIPS)[number]>("This month");
+  const { dark } = useTheme();
+  const C = pfTheme(dark);
+  const DOTS = dark ? DARK_DOTS : LIGHT_DOTS;
+
+  const [active, setActive] = useState<Chip>("This month");
   const [focused, setFocused] = useState<number | undefined>(undefined);
 
   const spendable = MOCK_CATEGORIES.filter((c) => c.name !== "Uncategorized");
@@ -48,14 +55,27 @@ export default function AnalyticsPage() {
 
   return (
     <PageTransition>
-      <main className="pf-safe-top min-h-screen bg-pf-black pb-[96px]">
+      <main
+        className="pf-safe-top min-h-screen pb-[96px]"
+        style={{ background: C.bg }}
+      >
         <header className="flex h-[52px] items-center justify-between px-5">
-          <span className="text-[20px] font-semibold tracking-tight text-pf-white">Analytics</span>
+          <span
+            className="text-[20px] font-semibold tracking-tight"
+            style={{ color: C.text }}
+          >
+            Analytics
+          </span>
           <button
             type="button"
-            className="flex h-9 w-9 items-center justify-center rounded-[10px] border border-white/[0.08] bg-white/[0.04] text-white/50 active:bg-white/[0.08]"
+            className="flex h-9 w-9 items-center justify-center rounded-[10px]"
+            style={{
+              background: C.surface,
+              border: `1px solid ${C.border}`,
+              color: C.muted,
+            }}
           >
-            <IcFilter />
+            <IcFilter color={C.muted} />
           </button>
         </header>
 
@@ -67,11 +87,16 @@ export default function AnalyticsPage() {
                 key={chip}
                 type="button"
                 onClick={() => setActive(chip)}
-                className={
-                  "flex-shrink-0 rounded-full px-3 py-[5px] text-[13px] font-medium transition " +
-                  (on ? "text-pf-black" : "border border-white/[0.08] bg-white/[0.04] text-white/50")
+                className="flex-shrink-0 rounded-full px-3 py-[5px] text-[13px] font-medium transition"
+                style={
+                  on
+                    ? { background: GRAD_METALLIC, color: "#000" }
+                    : {
+                        background: dark ? "#1A1A1A" : "#F0F0F0",
+                        border: `1px solid ${C.border}`,
+                        color: C.muted,
+                      }
                 }
-                style={on ? { background: GRAD_METALLIC } : undefined}
               >
                 {chip}
               </button>
@@ -85,6 +110,7 @@ export default function AnalyticsPage() {
             centerLabel="−€1,540"
             centerSub="April"
             focusedIndex={focused}
+            dark={dark}
           />
           <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5">
             {segments.map((seg, i) => (
@@ -98,15 +124,27 @@ export default function AnalyticsPage() {
                   className="inline-block h-2 w-2 rounded-[2px]"
                   style={{ background: seg.color }}
                 />
-                <span className="text-[12px] text-white/60">{seg.label}</span>
-                <span className="text-[12px] tabular-nums text-white/40">{seg.pct}%</span>
+                <span className="text-[12px]" style={{ color: C.text }}>
+                  {seg.label}
+                </span>
+                <span
+                  className="text-[12px] tabular-nums"
+                  style={{ color: C.muted }}
+                >
+                  {seg.pct}%
+                </span>
               </button>
             ))}
           </div>
         </section>
 
         <div className="mb-2 px-5">
-          <span className="text-[15px] font-semibold text-pf-white">By category</span>
+          <span
+            className="text-[15px] font-semibold"
+            style={{ color: C.text }}
+          >
+            By category
+          </span>
         </div>
         <StaggerList>
           {spendable.map((cat, i) => (
@@ -117,19 +155,24 @@ export default function AnalyticsPage() {
                 total={cat.total}
                 pct={cat.pct}
                 dotColor={DOTS[i] ?? "#5C5C5C"}
+                dark={dark}
               />
             </StaggerItem>
           ))}
           {uncategorized ? (
             <StaggerItem className="list-none">
-              <div className="border-b border-white/[0.06] px-5 py-3">
+              <div
+                className="px-5 py-3"
+                style={{ borderBottom: `1px solid ${C.subtleBorder}` }}
+              >
                 <CategoryBar
                   name={uncategorized.name}
                   count={uncategorized.count}
                   total={uncategorized.total}
                   pct={uncategorized.pct}
-                  dotColor="#3A3A3A"
+                  dotColor={dark ? "#3A3A3A" : "#DEDEDE"}
                   muted
+                  dark={dark}
                 />
                 <div className="mt-2 pl-4">
                   <Link

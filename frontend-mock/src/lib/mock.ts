@@ -182,6 +182,53 @@ export const MOCK_CATEGORY_TREE: CategoryNode[] = [
   },
 ];
 
+export type MonthPoint = {
+  m: string;
+  v: number;
+};
+
+export const MOCK_SPEND_TREND: MonthPoint[] = [
+  { m: "Nov", v: 1200 },
+  { m: "Dec", v: 1800 },
+  { m: "Jan", v: 950 },
+  { m: "Feb", v: 1100 },
+  { m: "Mar", v: 1320 },
+  { m: "Apr", v: 1540 },
+];
+
+export type MerchantCharge = {
+  date: string;
+  amount: string;
+};
+
+export const MOCK_MERCHANT_HISTORY: MerchantCharge[] = [
+  { date: "Apr 14", amount: "−€14.60" },
+  { date: "Apr 7", amount: "−€22.10" },
+  { date: "Mar 31", amount: "−€17.50" },
+];
+
+export const MOCK_MERCHANT_AVG = "−€18.30";
+
+export type AIInsight = {
+  icon: string;
+  text: string;
+};
+
+export const MOCK_AI_INSIGHTS: AIInsight[] = [
+  {
+    icon: "↑",
+    text: "You spent 16% more than last month — driven by Food (+€94) and a new Spotify sub.",
+  },
+  {
+    icon: "◎",
+    text: "Food & Groceries are 52% of spend this month. Together they totalled €800.",
+  },
+  {
+    icon: "✓",
+    text: "Largest income: Salary on Apr 21 (+€3,200). Net positive month (+€1,659).",
+  },
+];
+
 export const MOCK_RULES: MockRule[] = [
   { id: "r1", keyword: "Bolt Food", category: "Food · Delivery" },
   { id: "r2", keyword: "wolt", category: "Food · Delivery" },

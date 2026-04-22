@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { MOCK_CATEGORY_TREE, type CategoryNode } from "@/lib/mock";
-import { PF } from "@/lib/tokens";
+import { GRAD_METALLIC, PF, pfTheme } from "@/lib/tokens";
+import { useTheme } from "@/lib/theme";
 import { TopBar } from "@/components/top-bar";
 import { PageTransition } from "@/components/page-transition";
 import { StaggerItem, StaggerList } from "@/components/stagger-list";
@@ -16,15 +17,17 @@ type AddSheetState = {
 };
 
 export default function CategoriesPage() {
+  const { dark } = useTheme();
+  const C = pfTheme(dark);
   const [sheet, setSheet] = useState<AddSheetState>({ open: false, name: "", parent: "" });
   const [openId, setOpenId] = useState<string | null>(null);
 
   return (
     <PageTransition>
-      <main className="min-h-screen bg-pf-black pb-[96px]">
+      <main className="min-h-screen pb-[96px]" style={{ background: C.bg }}>
         <TopBar
           title="Categories"
-          back="/settings"
+          back
           right={
             <button
               type="button"
@@ -39,32 +42,37 @@ export default function CategoriesPage() {
         />
 
         <div className="px-5 py-3">
-          <p className="text-[13px] leading-[1.5] text-white/45">
+          <p
+            className="text-[13px] leading-[1.5]"
+            style={{ color: C.muted }}
+          >
             Organize transactions. System categories can&apos;t be removed. Tap a user row to
             reveal Delete.
           </p>
         </div>
 
         {MOCK_CATEGORY_TREE.map((parent) => (
-          <Section key={parent.id}>
-            <Header node={parent} />
+          <section key={parent.id} className="mb-2">
+            <Header node={parent} dark={dark} />
             {parent.children.length ? (
               <StaggerList>
                 {parent.children.map((child) => (
                   <StaggerItem key={child.id} className="list-none">
                     <ChildRow
                       node={child}
+                      dark={dark}
                       open={openId === child.id}
-                      onToggle={() => setOpenId((prev) => (prev === child.id ? null : child.id))}
+                      onToggle={() =>
+                        setOpenId((prev) => (prev === child.id ? null : child.id))
+                      }
                     />
                   </StaggerItem>
                 ))}
               </StaggerList>
             ) : null}
-          </Section>
+          </section>
         ))}
 
-        {/* Add sheet — inline */}
         <AnimatePresence>
           {sheet.open ? (
             <motion.div
@@ -80,23 +88,49 @@ export default function CategoriesPage() {
                 exit={{ y: 300 }}
                 transition={{ duration: 0.22, ease: "easeOut" }}
                 onClick={(e) => e.stopPropagation()}
-                className="w-full rounded-t-[20px] border border-white/[0.08] bg-pf-near-black p-5"
+                className="w-full rounded-t-[20px] p-5"
+                style={{
+                  background: dark ? "#1A1A1A" : "#FFFFFF",
+                  border: `1px solid ${C.border}`,
+                }}
               >
-                <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/20" />
-                <h3 className="mb-4 text-[17px] font-semibold text-pf-white">Add category</h3>
-                <label className="mb-1 block text-[12px] text-white/45">Name</label>
+                <div
+                  className="mx-auto mb-4 h-1 w-10 rounded-full"
+                  style={{ background: C.border }}
+                />
+                <h3
+                  className="mb-4 text-[17px] font-semibold"
+                  style={{ color: C.text }}
+                >
+                  Add category
+                </h3>
+                <label className="mb-1 block text-[12px]" style={{ color: C.muted }}>
+                  Name
+                </label>
                 <input
                   autoFocus
                   value={sheet.name}
                   onChange={(e) => setSheet((s) => ({ ...s, name: e.target.value }))}
                   placeholder="e.g. Pharmacy"
-                  className="mb-4 w-full rounded-[10px] border border-white/[0.08] bg-white/[0.04] px-3 py-2.5 text-[15px] text-pf-white outline-none placeholder:text-white/30"
+                  className="mb-4 w-full rounded-[10px] px-3 py-2.5 text-[15px] outline-none"
+                  style={{
+                    background: C.surface,
+                    border: `1px solid ${C.border}`,
+                    color: C.text,
+                  }}
                 />
-                <label className="mb-1 block text-[12px] text-white/45">Parent (optional)</label>
+                <label className="mb-1 block text-[12px]" style={{ color: C.muted }}>
+                  Parent (optional)
+                </label>
                 <select
                   value={sheet.parent}
                   onChange={(e) => setSheet((s) => ({ ...s, parent: e.target.value }))}
-                  className="mb-6 w-full rounded-[10px] border border-white/[0.08] bg-white/[0.04] px-3 py-2.5 text-[15px] text-pf-white outline-none"
+                  className="mb-6 w-full rounded-[10px] px-3 py-2.5 text-[15px] outline-none"
+                  style={{
+                    background: C.surface,
+                    border: `1px solid ${C.border}`,
+                    color: C.text,
+                  }}
                 >
                   <option value="">— none —</option>
                   {MOCK_CATEGORY_TREE.map((p) => (
@@ -109,14 +143,19 @@ export default function CategoriesPage() {
                   <button
                     type="button"
                     onClick={() => setSheet((s) => ({ ...s, open: false }))}
-                    className="flex h-12 flex-1 items-center justify-center rounded-[12px] border border-white/[0.1] text-[15px] text-pf-white"
+                    className="flex h-12 flex-1 items-center justify-center rounded-[12px] text-[15px]"
+                    style={{
+                      border: `1px solid ${C.border}`,
+                      color: C.text,
+                    }}
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     onClick={() => setSheet((s) => ({ ...s, open: false }))}
-                    className="flex h-12 flex-1 items-center justify-center rounded-[12px] bg-gold-metallic text-[15px] font-semibold text-pf-black"
+                    className="flex h-12 flex-1 items-center justify-center rounded-[12px] text-[15px] font-semibold"
+                    style={{ background: GRAD_METALLIC, color: "#0A0A0A" }}
                   >
                     Add
                   </button>
@@ -132,18 +171,27 @@ export default function CategoriesPage() {
   );
 }
 
-function Section({ children }: { children: React.ReactNode }) {
-  return <section className="mb-2">{children}</section>;
-}
-
-function Header({ node }: { node: CategoryNode }) {
+function Header({ node, dark }: { node: CategoryNode; dark: boolean }) {
+  const C = pfTheme(dark);
   return (
-    <div className="flex items-center justify-between border-b border-white/[0.08] px-5 py-2.5">
-      <span className="text-[13px] font-semibold uppercase tracking-[0.4px] text-white/55">
+    <div
+      className="flex items-center justify-between px-5 py-2.5"
+      style={{ borderBottom: `1px solid ${C.border}` }}
+    >
+      <span
+        className="text-[13px] font-semibold uppercase tracking-[0.4px]"
+        style={{ color: C.muted }}
+      >
         {node.name}
       </span>
       {node.system ? (
-        <span className="rounded-full bg-white/[0.06] px-2 py-[2px] text-[10px] uppercase tracking-[0.3px] text-white/45">
+        <span
+          className="rounded-full px-2 py-[2px] text-[10px] uppercase tracking-[0.3px]"
+          style={{
+            background: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)",
+            color: C.muted,
+          }}
+        >
           system
         </span>
       ) : null}
@@ -153,23 +201,34 @@ function Header({ node }: { node: CategoryNode }) {
 
 function ChildRow({
   node,
+  dark,
   open,
   onToggle,
 }: {
   node: CategoryNode;
+  dark: boolean;
   open: boolean;
   onToggle: () => void;
 }) {
+  const C = pfTheme(dark);
   return (
     <div>
       <button
         type="button"
         onClick={onToggle}
-        className="flex h-12 w-full items-center justify-between border-b border-white/[0.06] pl-8 pr-5 text-left active:bg-white/[0.02]"
+        className="flex h-12 w-full items-center justify-between pl-8 pr-5 text-left"
+        style={{ borderBottom: `1px solid ${C.subtleBorder}` }}
       >
-        <span className="text-[15px] text-pf-white">{node.name}</span>
+        <span className="text-[15px]" style={{ color: C.text }}>
+          {node.name}
+        </span>
         {node.system ? (
-          <span className="text-[11px] uppercase tracking-[0.3px] text-white/35">system</span>
+          <span
+            className="text-[11px] uppercase tracking-[0.3px]"
+            style={{ color: C.muted }}
+          >
+            system
+          </span>
         ) : null}
       </button>
       <AnimatePresence>
@@ -179,7 +238,11 @@ function ChildRow({
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="overflow-hidden border-b border-white/[0.06] bg-white/[0.02]"
+            className="overflow-hidden"
+            style={{
+              borderBottom: `1px solid ${C.subtleBorder}`,
+              background: dark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)",
+            }}
           >
             <div className="flex justify-end px-5 py-2">
               <button

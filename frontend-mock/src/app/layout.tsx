@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { ThemeProvider } from "@/lib/theme";
+import { ThemeHtmlSync } from "@/components/theme-html-sync";
 
 export const metadata: Metadata = {
   title: "Pure Finance (mock)",
@@ -17,13 +19,18 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#0A0A0A",
+  themeColor: "#FFFFFF",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen font-sans">{children}</body>
+      <body className="min-h-screen font-sans">
+        <ThemeProvider>
+          <ThemeHtmlSync />
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

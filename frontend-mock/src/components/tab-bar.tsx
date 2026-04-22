@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import type { ReactElement } from "react";
-import { GOLD_TEXT_STYLE, PF } from "@/lib/tokens";
+import { GOLD_TEXT_STYLE, PF, pfTheme } from "@/lib/tokens";
+import { useTheme } from "@/lib/theme";
 
 type TabId = "home" | "transactions" | "analytics" | "settings";
 
@@ -96,24 +97,29 @@ const TABS: Tab[] = [
 
 export function TabBar() {
   const pathname = usePathname();
-  const active: TabId =
-    pathname.startsWith("/transactions")
-      ? "transactions"
-      : pathname.startsWith("/analytics")
-        ? "analytics"
-        : pathname.startsWith("/settings")
-          ? "settings"
-          : "home";
+  const { dark } = useTheme();
+  const C = pfTheme(dark);
+
+  const active: TabId = pathname.startsWith("/transactions")
+    ? "transactions"
+    : pathname.startsWith("/analytics")
+      ? "analytics"
+      : pathname.startsWith("/settings")
+        ? "settings"
+        : "home";
 
   return (
     <nav
-      className="pf-safe-bottom fixed bottom-0 left-0 right-0 z-50 bg-pf-black/90 backdrop-blur"
-      style={{ borderTop: "1px solid #1F1F1F" }}
+      className="pf-safe-bottom fixed bottom-0 left-0 right-0 z-50 backdrop-blur"
+      style={{
+        background: dark ? "rgba(10,10,10,0.9)" : "rgba(255,255,255,0.9)",
+        borderTop: `1px solid ${C.border}`,
+      }}
     >
       <ul className="flex h-[64px] items-start pt-[10px]">
         {TABS.map((t) => {
           const on = t.id === active;
-          const color = on ? PF.goldBase : "rgba(255,255,255,0.4)";
+          const color = on ? PF.goldBase : C.muted;
           return (
             <li key={t.id} className="flex-1">
               <Link href={t.href} className="flex flex-col items-center gap-1">
@@ -130,7 +136,7 @@ export function TabBar() {
                   style={
                     on
                       ? { ...GOLD_TEXT_STYLE, fontWeight: 600 }
-                      : { color: "rgba(255,255,255,0.4)", fontWeight: 400 }
+                      : { color: C.muted, fontWeight: 400 }
                   }
                 >
                   {t.label}

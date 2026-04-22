@@ -1,9 +1,9 @@
 import { PF, pfTheme } from "@/lib/tokens";
 import { MOCK_SPEND_TREND } from "@/lib/mock";
 
-type Props = { dark?: boolean };
+type Props = { dark?: boolean; embedded?: boolean };
 
-export function AccBarsCard({ dark = false }: Props) {
+export function AccBarsCard({ dark = false, embedded = false }: Props) {
   const C = pfTheme(dark);
   const data = MOCK_SPEND_TREND;
 
@@ -34,7 +34,9 @@ export function AccBarsCard({ dark = false }: Props) {
 
   return (
     <div
-      className="mx-5 mb-5 rounded-[13px] p-4"
+      className={
+        (embedded ? "h-full " : "mx-5 mb-5 ") + "rounded-[13px] p-4"
+      }
       style={{
         background: dark ? "#1A1A1A" : "#F7F7F7",
         border: `1px solid ${C.border}`,

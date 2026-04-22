@@ -1,6 +1,6 @@
 import { GOLD_TEXT_STYLE, pfTheme } from "@/lib/tokens";
 
-type Props = { dark?: boolean };
+type Props = { dark?: boolean; embedded?: boolean };
 
 type Cat = { name: string; pct: number; color: string };
 
@@ -12,7 +12,7 @@ const CATS: Cat[] = [
   { name: "Other", pct: 26, color: "#DEDEDE" },
 ];
 
-export function AccDonutCard({ dark = false }: Props) {
+export function AccDonutCard({ dark = false, embedded = false }: Props) {
   const C = pfTheme(dark);
   const r = 40;
   const size = 120;
@@ -30,7 +30,9 @@ export function AccDonutCard({ dark = false }: Props) {
 
   return (
     <div
-      className="mx-5 mb-5 rounded-[13px] p-4"
+      className={
+        (embedded ? "h-full " : "mx-5 mb-5 ") + "rounded-[13px] p-4"
+      }
       style={{
         background: dark ? "#1A1A1A" : "#F7F7F7",
         border: `1px solid ${C.border}`,

@@ -1,16 +1,18 @@
 import { GRAD_METALLIC_SUBTLE, PF, pfTheme } from "@/lib/tokens";
 import { MOCK_CATEGORIES, MOCK_SUMMARY } from "@/lib/mock";
 
-type Props = { dark?: boolean };
+type Props = { dark?: boolean; embedded?: boolean };
 
-export function AccStatsCard({ dark = false }: Props) {
+export function AccStatsCard({ dark = false, embedded = false }: Props) {
   const C = pfTheme(dark);
   const dots = ["#0A0A0A", "#4A4A4A", "#8A8A8A", "#BBBBBB"];
   const cats = MOCK_CATEGORIES.slice(0, 4);
 
   return (
     <div
-      className="mx-5 mb-5 rounded-[13px] p-4"
+      className={
+        (embedded ? "h-full " : "mx-5 mb-5 ") + "rounded-[13px] p-4"
+      }
       style={{
         background: dark ? "#1A1A1A" : "#F7F7F7",
         border: `1px solid ${C.border}`,

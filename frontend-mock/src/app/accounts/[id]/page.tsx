@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   MOCK_ACCOUNTS,
@@ -17,12 +17,10 @@ import { AccStatsCard } from "@/components/acc-stats-card";
 import { AccDonutCard } from "@/components/acc-donut-card";
 import { AccBarsCard } from "@/components/acc-bars-card";
 import { AccAICard } from "@/components/acc-ai-card";
-
-type Variant = "stats" | "donut" | "bars" | "ai";
-
-function isVariant(v: string | null): v is Variant {
-  return v === "stats" || v === "donut" || v === "bars" || v === "ai";
-}
+import {
+  AnalyticsSlider,
+  AnalyticsSliderItem,
+} from "@/components/analytics-slider";
 
 function IcChevronLeft({ color }: { color: string }) {
   return (
@@ -59,12 +57,8 @@ function IcRefresh({ color }: { color: string }) {
   );
 }
 
-function AccountDetailInner() {
+export default function AccountDetailPage() {
   const router = useRouter();
-  const params = useSearchParams();
-  const raw = params.get("v");
-  const variant: Variant = isVariant(raw) ? raw : "stats";
-
   const { dark } = useTheme();
   const C = pfTheme(dark);
   const acc = MOCK_ACCOUNTS[0]!;
@@ -165,10 +159,21 @@ function AccountDetailInner() {
 
         <div className="mx-5 mb-4 h-px" style={{ background: C.border }} />
 
-        {variant === "stats" ? <AccStatsCard dark={dark} /> : null}
-        {variant === "donut" ? <AccDonutCard dark={dark} /> : null}
-        {variant === "bars" ? <AccBarsCard dark={dark} /> : null}
-        {variant === "ai" ? <AccAICard dark={dark} /> : null}
+        {/* Primary — AI Insights */}
+        <AccAICard dark={dark} />
+
+        {/* Secondary analytics — horizontal slider */}
+        <AnalyticsSlider>
+          <AnalyticsSliderItem>
+            <AccStatsCard dark={dark} embedded />
+          </AnalyticsSliderItem>
+          <AnalyticsSliderItem>
+            <AccDonutCard dark={dark} embedded />
+          </AnalyticsSliderItem>
+          <AnalyticsSliderItem>
+            <AccBarsCard dark={dark} embedded />
+          </AnalyticsSliderItem>
+        </AnalyticsSlider>
 
         {/* Transactions */}
         <div className="mb-1 flex items-center justify-between px-5">
@@ -186,13 +191,5 @@ function AccountDetailInner() {
         </StaggerList>
       </main>
     </PageTransition>
-  );
-}
-
-export default function AccountDetailPage() {
-  return (
-    <Suspense fallback={null}>
-      <AccountDetailInner />
-    </Suspense>
   );
 }

@@ -4,8 +4,8 @@ import pytest
 
 from src.app.exceptions.access_token_invalid import AccessTokenInvalid
 from src.app.services.auth.get_current_user import GetCurrentUser
-from src.domain.entities.user import User
-from src.domain.exceptions.user_not_found import UserNotFound
+from src.db.models.user import User
+from src.app.exceptions.user_not_found import UserNotFound
 from tests.fakes.clock import FixedClock
 from tests.fakes.jwt_issuer import StubJwtIssuer
 from tests.fakes.repositories.refresh_token_repository import (

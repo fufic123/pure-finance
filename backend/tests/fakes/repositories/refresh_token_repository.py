@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from src.domain.entities.refresh_token import RefreshToken
+from src.db.models.refresh_token import RefreshToken
 
 
 class InMemoryRefreshTokenRepository:

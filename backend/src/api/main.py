@@ -1,14 +1,15 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from src.api.response_handlers.install import install_handlers
+from src.api.response_handlers import install_handlers
 from src.api.routers.analytics import router as analytics_router
 from src.api.routers.auth import router as auth_router
 from src.api.routers.accounts import router as accounts_router
 from src.api.routers.categorization_rules import router as rules_router
 from src.api.routers.categories import router as categories_router
 from src.api.routers.health import router as health_router
-from src.api.routers.institutions import router as institutions_router
 from src.api.routers.transactions import router as transactions_router
 from src.api.routers.users import router as users_router
 from src.shared.env import Settings
@@ -16,8 +17,15 @@ from src.shared.env import Settings
 API_PREFIX = "/api"
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    from src.api.dependencies import dispose
+    await dispose()
+
+
 def create_app(allow_origins: list[str] | None = None) -> FastAPI:
-    app = FastAPI(title="Pure Finance")
+    app = FastAPI(title="Pure Finance", lifespan=lifespan)
     if allow_origins is not None:
         app.add_middleware(
             CORSMiddleware,
@@ -32,7 +40,6 @@ def create_app(allow_origins: list[str] | None = None) -> FastAPI:
     app.include_router(analytics_router, prefix=API_PREFIX)
     app.include_router(accounts_router, prefix=API_PREFIX)
     app.include_router(transactions_router, prefix=API_PREFIX)
-    app.include_router(institutions_router, prefix=API_PREFIX)
     app.include_router(categories_router, prefix=API_PREFIX)
     app.include_router(rules_router, prefix=API_PREFIX)
     app.include_router(health_router, prefix=API_PREFIX)

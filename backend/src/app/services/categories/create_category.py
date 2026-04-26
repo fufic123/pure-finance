@@ -3,7 +3,7 @@ from uuid import UUID
 
 from src.app.ports.clock import Clock
 from src.app.ports.unit_of_work import UnitOfWork
-from src.domain.entities.category import Category
+from src.db.models.category import Category
 
 
 class CreateCategory:

@@ -1,7 +1,11 @@
+from dataclasses import dataclass
 from functools import lru_cache
 from typing import Annotated
 
+import httpx
 from fastapi import Depends, Header, Request
+from redis.asyncio import Redis
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from src.app.exceptions.access_token_invalid import AccessTokenInvalid
 from src.app.ports.rate_limiter import RateLimiter
@@ -28,25 +32,80 @@ from src.app.services.categorization_rules.list_rules import ListRules
 from src.app.services.categories.create_category import CreateCategory
 from src.app.services.categories.delete_category import DeleteCategory
 from src.app.services.categories.list_categories import ListCategories
-from src.app.services.institutions.list_institutions import ListInstitutions
-from src.bootstrap import AppContainer
-from src.domain.entities.user import User
+from src.db.session import create_engine, create_session_maker
+from src.db.unit_of_work import SqlAlchemyUnitOfWork
+from src.db.models.user import User
+from src.integrations.auth.google_oauth import GoogleOauthClient
+from src.integrations.auth.pyjwt_issuer import PyJwtIssuer
+from src.integrations.auth.secrets_token_generator import SecretsTokenGenerator
+from src.integrations.cache.redis_rate_limiter import RedisRateLimiter
+from src.integrations.cache.redis_state_store import RedisStateStore
+from src.integrations.clock import SystemClock
 from src.shared.env import Settings
 
 AUTH_RATE_LIMIT = 30
 AUTH_RATE_WINDOW_SECONDS = 60
 
 
+@dataclass
+class _S:
+    settings: Settings
+    engine: AsyncEngine
+    session_maker: async_sessionmaker[AsyncSession]
+    http: httpx.AsyncClient
+    redis: Redis
+    clock: SystemClock
+    jwt: PyJwtIssuer
+    oauth: GoogleOauthClient
+    token_generator: SecretsTokenGenerator
+    state_store: RedisStateStore
+    rate_limiter: RedisRateLimiter
+
+
 @lru_cache(maxsize=1)
-def get_container() -> AppContainer:
-    return AppContainer(Settings())
+def _s() -> _S:
+    settings = Settings()
+    engine = create_engine(settings.database_url)
+    session_maker = create_session_maker(engine)
+    http = httpx.AsyncClient()
+    redis: Redis = Redis.from_url(settings.redis_url, decode_responses=True)
+    clock = SystemClock()
+    jwt = PyJwtIssuer(
+        secret=settings.jwt_secret,
+        lifetime_seconds=settings.access_token_lifetime_seconds,
+    )
+    oauth = GoogleOauthClient(
+        client_id=settings.google_client_id,
+        client_secret=settings.google_client_secret,
+        http_client=http,
+    )
+    token_generator = SecretsTokenGenerator()
+    state_store = RedisStateStore(redis)
+    rate_limiter = RedisRateLimiter(redis)
+
+    return _S(
+        settings=settings, engine=engine, session_maker=session_maker,
+        http=http, redis=redis, clock=clock, jwt=jwt, oauth=oauth,
+        token_generator=token_generator, state_store=state_store,
+        rate_limiter=rate_limiter,
+    )
 
 
-Container = Annotated[AppContainer, Depends(get_container)]
+def _uow_factory() -> SqlAlchemyUnitOfWork:
+    return SqlAlchemyUnitOfWork(_s().session_maker)
 
 
-def get_rate_limiter(container: Container) -> RateLimiter:
-    return container.rate_limiter()
+def get_rate_limiter() -> RateLimiter:
+    return _s().rate_limiter
+
+
+async def dispose() -> None:
+    if _s.cache_info().currsize == 0:
+        return
+    s = _s()
+    await s.http.aclose()
+    await s.redis.aclose()
+    await s.engine.dispose()
 
 
 async def rate_limit_auth(
@@ -58,100 +117,119 @@ async def rate_limit_auth(
     await limiter.hit(key, limit=AUTH_RATE_LIMIT, window_seconds=AUTH_RATE_WINDOW_SECONDS)
 
 
-def get_start_google_auth(container: Container) -> StartGoogleAuth:
-    return container.start_google_auth()
+def get_start_google_auth() -> StartGoogleAuth:
+    s = _s()
+    return StartGoogleAuth(
+        state_store=s.state_store,
+        token_generator=s.token_generator,
+        client_id=s.settings.google_client_id,
+        state_lifetime_seconds=s.settings.oauth_state_lifetime_seconds,
+    )
 
 
-def get_google_callback(container: Container) -> GoogleCallback:
-    return container.google_callback()
+def get_google_callback() -> GoogleCallback:
+    s = _s()
+    return GoogleCallback(
+        uow_factory=_uow_factory,
+        clock=s.clock,
+        jwt_issuer=s.jwt,
+        oauth_provider=s.oauth,
+        state_store=s.state_store,
+        token_generator=s.token_generator,
+        refresh_lifetime_seconds=s.settings.refresh_token_lifetime_seconds,
+    )
 
 
-def get_refresh_tokens(container: Container) -> RefreshTokens:
-    return container.refresh_tokens()
+def get_refresh_tokens() -> RefreshTokens:
+    s = _s()
+    return RefreshTokens(
+        uow_factory=_uow_factory,
+        clock=s.clock,
+        jwt_issuer=s.jwt,
+        token_generator=s.token_generator,
+        refresh_lifetime_seconds=s.settings.refresh_token_lifetime_seconds,
+    )
 
 
-def get_logout(container: Container) -> Logout:
-    return container.logout()
+def get_logout() -> Logout:
+    return Logout(uow_factory=_uow_factory, clock=_s().clock)
 
 
-def get_current_user_service(container: Container) -> GetCurrentUser:
-    return container.get_current_user()
+def get_current_user_service() -> GetCurrentUser:
+    s = _s()
+    return GetCurrentUser(uow_factory=_uow_factory, clock=s.clock, jwt_issuer=s.jwt)
 
 
-def get_get_account(container: Container) -> GetAccount:
-    return container.get_account()
+def get_get_account() -> GetAccount:
+    return GetAccount(uow_factory=_uow_factory)
 
 
-def get_list_accounts(container: Container) -> ListAccounts:
-    return container.list_accounts()
+def get_list_accounts() -> ListAccounts:
+    return ListAccounts(uow_factory=_uow_factory)
 
 
-def get_delete_account(container: Container) -> DeleteAccount:
-    return container.delete_account()
+def get_delete_account() -> DeleteAccount:
+    return DeleteAccount(uow_factory=_uow_factory)
 
 
-def get_create_account(container: Container) -> CreateAccount:
-    return container.create_account()
+def get_create_account() -> CreateAccount:
+    return CreateAccount(uow_factory=_uow_factory, clock=_s().clock)
 
 
-def get_update_account(container: Container) -> UpdateAccount:
-    return container.update_account()
+def get_update_account() -> UpdateAccount:
+    return UpdateAccount(uow_factory=_uow_factory)
 
 
-def get_get_account_balance(container: Container) -> GetAccountBalance:
-    return container.get_account_balance()
+def get_get_account_balance() -> GetAccountBalance:
+    return GetAccountBalance(uow_factory=_uow_factory)
 
 
-def get_list_transactions(container: Container) -> ListTransactions:
-    return container.list_transactions()
+def get_list_transactions() -> ListTransactions:
+    return ListTransactions(uow_factory=_uow_factory)
 
 
-def get_update_transaction(container: Container) -> UpdateTransaction:
-    return container.update_transaction()
+def get_update_transaction() -> UpdateTransaction:
+    return UpdateTransaction(uow_factory=_uow_factory)
 
 
-def get_create_transaction(container: Container) -> CreateTransaction:
-    return container.create_transaction()
+def get_create_transaction() -> CreateTransaction:
+    return CreateTransaction(uow_factory=_uow_factory, clock=_s().clock)
 
 
-def get_delete_transaction(container: Container) -> DeleteTransaction:
-    return container.delete_transaction()
+def get_delete_transaction() -> DeleteTransaction:
+    return DeleteTransaction(uow_factory=_uow_factory)
 
 
-def get_analytics_summary(container: Container) -> GetAnalyticsSummary:
-    return container.analytics_summary()
+def get_analytics_summary() -> GetAnalyticsSummary:
+    return GetAnalyticsSummary(uow_factory=_uow_factory)
 
 
-def get_analytics_by_category(container: Container) -> GetAnalyticsByCategory:
-    return container.analytics_by_category()
+def get_analytics_by_category() -> GetAnalyticsByCategory:
+    return GetAnalyticsByCategory(uow_factory=_uow_factory)
 
 
-def get_list_categories(container: Container) -> ListCategories:
-    return container.list_categories()
+def get_list_categories() -> ListCategories:
+    return ListCategories(uow_factory=_uow_factory)
 
 
-def get_create_category(container: Container) -> CreateCategory:
-    return container.create_category()
+def get_create_category() -> CreateCategory:
+    return CreateCategory(uow_factory=_uow_factory, clock=_s().clock)
 
 
-def get_delete_category(container: Container) -> DeleteCategory:
-    return container.delete_category()
+def get_delete_category() -> DeleteCategory:
+    return DeleteCategory(uow_factory=_uow_factory)
 
 
-def get_list_rules(container: Container) -> ListRules:
-    return container.list_rules()
+def get_list_rules() -> ListRules:
+    return ListRules(uow_factory=_uow_factory)
 
 
-def get_create_rule(container: Container) -> CreateRule:
-    return container.create_rule()
+def get_create_rule() -> CreateRule:
+    return CreateRule(uow_factory=_uow_factory, clock=_s().clock)
 
 
-def get_delete_rule(container: Container) -> DeleteRule:
-    return container.delete_rule()
-
-
-def get_list_institutions(container: Container) -> ListInstitutions:
-    return container.list_institutions()
+def get_delete_rule() -> DeleteRule:
+    return DeleteRule(uow_factory=_uow_factory)
 
 
 async def get_current_user(

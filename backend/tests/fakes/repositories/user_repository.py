@@ -1,7 +1,7 @@
 from uuid import UUID
 
-from src.domain.entities.user import User
-from src.domain.exceptions.user_not_found import UserNotFound
+from src.db.models.user import User
+from src.app.exceptions.user_not_found import UserNotFound
 
 
 class InMemoryUserRepository:

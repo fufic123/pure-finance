@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 
 from src.api.dependencies import get_current_user
 from src.api.dtos.users.response import UserResponse
-from src.domain.entities.user import User
+from src.db.models.user import User
 
 router = APIRouter()
 

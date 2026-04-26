@@ -6,8 +6,8 @@ from src.app.exceptions.oauth_state_invalid import OAuthStateInvalid
 from src.app.ports.google_user_info import GoogleUserInfo
 from src.app.services.auth.google_callback import GoogleCallback
 from src.app.services.auth.token_pair import TokenPair
-from src.domain.entities.refresh_token import RefreshToken
-from src.domain.entities.user import User
+from src.db.models.refresh_token import RefreshToken
+from src.db.models.user import User
 from tests.fakes.clock import FixedClock
 from tests.fakes.jwt_issuer import StubJwtIssuer
 from tests.fakes.oauth_provider import StubOauthProvider

@@ -6,7 +6,7 @@ from uuid import UUID
 from src.app.exceptions.account_not_found import AccountNotFound
 from src.app.ports.clock import Clock
 from src.app.ports.unit_of_work import UnitOfWork
-from src.domain.entities.transaction import Transaction
+from src.db.models.transaction import Transaction
 
 
 class CreateTransaction:

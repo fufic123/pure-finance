@@ -4,7 +4,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from src.domain.entities.transaction import Transaction
+from src.db.models.transaction import Transaction
 
 
 class TransactionResponse(BaseModel):

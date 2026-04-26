@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 from src.api.dependencies import get_current_user_service, get_rate_limiter
 from src.api.main import create_app
 from src.app.exceptions.access_token_invalid import AccessTokenInvalid
-from src.domain.entities.user import User
+from src.db.models.user import User
 from tests.fakes.rate_limiter import AllowingRateLimiter
 
 

@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from src.domain.entities.categorization_rule import CategorizationRule
+from src.db.models.categorization_rule import CategorizationRule
 
 _NOW = datetime(2026, 4, 19, 12, 0, 0, tzinfo=UTC)
 

@@ -1,7 +1,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
 from src.api.dependencies import (
     get_create_account,
@@ -22,7 +22,7 @@ from src.app.services.accounts.get_account import GetAccount
 from src.app.services.accounts.get_account_balance import GetAccountBalance
 from src.app.services.accounts.list_accounts import ListAccounts
 from src.app.services.accounts.update_account import UpdateAccount
-from src.domain.entities.user import User
+from src.db.models.user import User
 
 router = APIRouter()
 
@@ -54,7 +54,6 @@ async def create_account(
 ) -> AccountResponse:
     account = await service(
         user_id=user.id,
-        institution_id=body.institution_id,
         name=body.name,
         currency=body.currency,
         balance=body.balance,
@@ -96,10 +95,4 @@ async def get_account_balance(
     service: Annotated[GetAccountBalance, Depends(get_get_account_balance)],
 ) -> BalanceResponse:
     balance = await service(account_id=account_id, user_id=user.id)
-    if balance is None:
-        raise HTTPException(status_code=404, detail="balance not found")
-    return BalanceResponse(
-        amount=balance.amount,
-        currency=balance.currency,
-        updated_at=balance.updated_at,
-    )
+    return BalanceResponse(amount=balance.amount, currency=balance.currency)

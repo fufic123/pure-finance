@@ -18,7 +18,7 @@ from src.app.services.transactions.create_transaction import CreateTransaction
 from src.app.services.transactions.delete_transaction import DeleteTransaction
 from src.app.services.transactions.list_transactions import ListTransactions
 from src.app.services.transactions.update_transaction import UpdateTransaction
-from src.domain.entities.user import User
+from src.db.models.user import User
 
 router = APIRouter()
 

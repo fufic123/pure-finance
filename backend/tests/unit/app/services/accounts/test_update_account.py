@@ -6,7 +6,7 @@ import pytest
 
 from src.app.exceptions.account_not_found import AccountNotFound
 from src.app.services.accounts.update_account import UpdateAccount
-from src.domain.entities.account import Account
+from src.db.models.account import Account
 from tests.fakes.repositories.account_repository import InMemoryAccountRepository
 from tests.fakes.repositories.balance_snapshot_repository import InMemoryBalanceSnapshotRepository
 from tests.fakes.repositories.refresh_token_repository import InMemoryRefreshTokenRepository
@@ -37,7 +37,6 @@ def _account(user_id, balance=Decimal("100.00"), name="Main") -> Account:
         currency="EUR",
         name=name,
         created_at=_NOW,
-        institution_id=None,
         balance=balance,
     )
 

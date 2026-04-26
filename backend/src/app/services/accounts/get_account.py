@@ -3,7 +3,7 @@ from uuid import UUID
 
 from src.app.exceptions.account_not_found import AccountNotFound
 from src.app.ports.unit_of_work import UnitOfWork
-from src.domain.entities.account import Account
+from src.db.models.account import Account
 
 
 class GetAccount:

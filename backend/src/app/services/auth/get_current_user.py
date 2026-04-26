@@ -3,7 +3,7 @@ from typing import Callable
 from src.app.ports.clock import Clock
 from src.app.ports.jwt_issuer import JwtIssuer
 from src.app.ports.unit_of_work import UnitOfWork
-from src.domain.entities.user import User
+from src.db.models.user import User
 
 
 class GetCurrentUser:

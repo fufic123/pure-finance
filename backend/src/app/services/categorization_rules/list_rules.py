@@ -2,7 +2,7 @@ from typing import Callable
 from uuid import UUID
 
 from src.app.ports.unit_of_work import UnitOfWork
-from src.domain.entities.categorization_rule import CategorizationRule
+from src.db.models.categorization_rule import CategorizationRule
 
 
 class ListRules:

@@ -12,7 +12,7 @@ from src.api.dependencies import (
 from src.api.main import create_app
 from src.app.exceptions.oauth_state_invalid import OAuthStateInvalid
 from src.app.services.auth.token_pair import TokenPair
-from src.domain.exceptions.refresh_token_revoked import RefreshTokenRevoked
+from src.app.exceptions.refresh_token_revoked import RefreshTokenRevoked
 from tests.fakes.rate_limiter import AllowingRateLimiter
 
 

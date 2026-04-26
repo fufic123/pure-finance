@@ -2,7 +2,7 @@ from typing import Callable
 
 from src.app.ports.clock import Clock
 from src.app.ports.unit_of_work import UnitOfWork
-from src.domain.entities.balance_snapshot import BalanceSnapshot
+from src.db.models.balance_snapshot import BalanceSnapshot
 
 
 class TakeDailySnapshots:
@@ -19,7 +19,7 @@ class TakeDailySnapshots:
                     account_id=account.id,
                     amount=account.balance,
                     recorded_at=now,
-                    clock=self._clock,
+                    now=now,
                 )
                 await uow.balance_snapshots.add(snapshot)
             return len(accounts)

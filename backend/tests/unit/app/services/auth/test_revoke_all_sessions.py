@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
 from src.app.services.auth.revoke_all_sessions import RevokeAllSessions
-from src.domain.entities.refresh_token import RefreshToken
+from src.db.models.refresh_token import RefreshToken
 from tests.fakes.clock import FixedClock
 from tests.fakes.repositories.refresh_token_repository import (
     InMemoryRefreshTokenRepository,

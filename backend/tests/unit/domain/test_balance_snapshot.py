@@ -4,12 +4,9 @@ from uuid import uuid4
 
 import pytest
 
-from src.domain.entities.balance_snapshot import BalanceSnapshot
+from src.db.models.balance_snapshot import BalanceSnapshot
 
-
-class _FrozenClock:
-    def now(self) -> datetime:
-        return datetime(2026, 4, 21, 12, 0, 0, tzinfo=UTC)
+_NOW = datetime(2026, 4, 21, 12, 0, 0, tzinfo=UTC)
 
 
 class TestBalanceSnapshotCreate:
@@ -18,13 +15,13 @@ class TestBalanceSnapshotCreate:
         snap = BalanceSnapshot.create(
             account_id=account_id,
             amount=Decimal("100.00"),
-            recorded_at=datetime(2026, 4, 21, 12, 0, 0, tzinfo=UTC),
-            clock=_FrozenClock(),
+            recorded_at=_NOW,
+            now=_NOW,
         )
         assert snap.account_id == account_id
         assert snap.amount == Decimal("100.00")
         assert snap.recorded_at.tzinfo is not None
-        assert snap.created_at == datetime(2026, 4, 21, 12, 0, 0, tzinfo=UTC)
+        assert snap.created_at == _NOW
 
     def test_rejects_naive_recorded_at(self) -> None:
         with pytest.raises(ValueError):
@@ -32,14 +29,14 @@ class TestBalanceSnapshotCreate:
                 account_id=uuid4(),
                 amount=Decimal("100.00"),
                 recorded_at=datetime(2026, 4, 21, 12, 0, 0),
-                clock=_FrozenClock(),
+                now=_NOW,
             )
 
     def test_accepts_negative_amount_for_overdraft(self) -> None:
         snap = BalanceSnapshot.create(
             account_id=uuid4(),
             amount=Decimal("-50.25"),
-            recorded_at=datetime(2026, 4, 21, 12, 0, 0, tzinfo=UTC),
-            clock=_FrozenClock(),
+            recorded_at=_NOW,
+            now=_NOW,
         )
         assert snap.amount == Decimal("-50.25")

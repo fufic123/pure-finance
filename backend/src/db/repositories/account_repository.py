@@ -3,8 +3,7 @@ from uuid import UUID
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.db.models.account import AccountModel
-from src.domain.entities.account import Account
+from src.db.models.account import Account
 
 
 class PostgresAccountRepository:
@@ -12,57 +11,21 @@ class PostgresAccountRepository:
         self._session = session
 
     async def add(self, account: Account) -> None:
-        self._session.add(self._to_model(account))
+        self._session.add(account)
 
     async def get_by_id(self, account_id: UUID) -> Account | None:
-        model = await self._session.get(AccountModel, account_id)
-        return self._to_entity(model) if model else None
+        return await self._session.get(Account, account_id)
 
     async def list_by_user(self, user_id: UUID) -> list[Account]:
-        stmt = select(AccountModel).where(AccountModel.user_id == user_id)
-        models = (await self._session.execute(stmt)).scalars().all()
-        return [self._to_entity(m) for m in models]
+        result = await self._session.execute(select(Account).where(Account.user_id == user_id))
+        return list(result.scalars().all())
 
     async def list_all(self) -> list[Account]:
-        stmt = select(AccountModel)
-        models = (await self._session.execute(stmt)).scalars().all()
-        return [self._to_entity(m) for m in models]
-
-    async def delete(self, account_id: UUID) -> None:
-        await self._session.execute(
-            delete(AccountModel).where(AccountModel.id == account_id)
-        )
+        result = await self._session.execute(select(Account))
+        return list(result.scalars().all())
 
     async def update(self, account: Account) -> None:
-        model = await self._session.get(AccountModel, account.id)
-        if model is None:
-            return
-        model.name = account.name
-        model.balance = account.balance
-        model.institution_id = account.institution_id
+        await self._session.merge(account)
 
-    @staticmethod
-    def _to_entity(model: AccountModel) -> Account:
-        return Account(
-            id=model.id,
-            user_id=model.user_id,
-            iban=model.iban,
-            currency=model.currency,
-            name=model.name,
-            created_at=model.created_at,
-            institution_id=model.institution_id,
-            balance=model.balance,
-        )
-
-    @staticmethod
-    def _to_model(entity: Account) -> AccountModel:
-        return AccountModel(
-            id=entity.id,
-            user_id=entity.user_id,
-            iban=entity.iban,
-            currency=entity.currency,
-            name=entity.name,
-            created_at=entity.created_at,
-            institution_id=entity.institution_id,
-            balance=entity.balance,
-        )
+    async def delete(self, account_id: UUID) -> None:
+        await self._session.execute(delete(Account).where(Account.id == account_id))

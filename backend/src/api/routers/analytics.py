@@ -13,7 +13,7 @@ from src.api.dtos.analytics.by_category_response import AnalyticsByCategoryRespo
 from src.api.dtos.analytics.summary_response import AnalyticsSummaryResponse
 from src.app.services.analytics.get_by_category import GetAnalyticsByCategory
 from src.app.services.analytics.get_summary import GetAnalyticsSummary
-from src.domain.entities.user import User
+from src.db.models.user import User
 
 router = APIRouter(prefix="/analytics")
 

@@ -1,2 +1,2 @@
 class AppError(Exception):
-    """Marker base for all application-level errors."""
+    status_code: int = 500

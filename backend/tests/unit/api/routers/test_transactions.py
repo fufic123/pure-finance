@@ -16,8 +16,8 @@ from src.api.dependencies import (
 from src.api.main import create_app
 from src.app.exceptions.account_not_found import AccountNotFound
 from src.app.exceptions.transaction_not_found import TransactionNotFound
-from src.domain.entities.transaction import Transaction
-from src.domain.entities.user import User
+from src.db.models.transaction import Transaction
+from src.db.models.user import User
 from tests.fakes.rate_limiter import AllowingRateLimiter
 
 _NOW = datetime(2026, 4, 21, 12, 0, 0, tzinfo=UTC)
@@ -93,6 +93,7 @@ def _make_transaction(account_id: UUID | None = None) -> Transaction:
         description="Coffee",
         booked_at=_NOW,
         created_at=_NOW,
+        manually_categorized=False,
     )
 
 

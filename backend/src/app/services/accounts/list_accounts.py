@@ -2,7 +2,7 @@ from typing import Callable
 from uuid import UUID
 
 from src.app.ports.unit_of_work import UnitOfWork
-from src.domain.entities.account import Account
+from src.db.models.account import Account
 
 
 class ListAccounts:

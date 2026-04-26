@@ -6,8 +6,8 @@ import pytest
 
 from src.app.exceptions.account_not_found import AccountNotFound
 from src.app.services.transactions.create_transaction import CreateTransaction
-from src.domain.entities.account import Account
-from src.domain.entities.categorization_rule import CategorizationRule
+from src.db.models.account import Account
+from src.db.models.categorization_rule import CategorizationRule
 from tests.fakes.clock import FixedClock
 from tests.fakes.repositories.account_repository import InMemoryAccountRepository
 from tests.fakes.repositories.categorization_rule_repository import InMemoryCategorizationRuleRepository
@@ -27,7 +27,6 @@ def _make_account(user_id) -> Account:
         currency="EUR",
         name="Main",
         created_at=_NOW,
-        institution_id=None,
         balance=Decimal("0"),
     )
 

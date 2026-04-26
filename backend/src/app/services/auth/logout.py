@@ -2,7 +2,7 @@ from typing import Callable
 
 from src.app.ports.clock import Clock
 from src.app.ports.unit_of_work import UnitOfWork
-from src.domain.entities.refresh_token import RefreshToken
+from src.db.models.refresh_token import RefreshToken
 
 
 class Logout:

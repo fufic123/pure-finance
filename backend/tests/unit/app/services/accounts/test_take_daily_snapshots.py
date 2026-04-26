@@ -5,7 +5,7 @@ from uuid import uuid4
 import pytest
 
 from src.app.services.accounts.take_daily_snapshots import TakeDailySnapshots
-from src.domain.entities.account import Account
+from src.db.models.account import Account
 from tests.fakes.clock import FixedClock
 from tests.fakes.repositories.account_repository import InMemoryAccountRepository
 from tests.fakes.repositories.balance_snapshot_repository import InMemoryBalanceSnapshotRepository
@@ -33,7 +33,6 @@ def _account(balance: Decimal = Decimal("100.00")) -> Account:
         currency="EUR",
         name="Main",
         created_at=_NOW,
-        institution_id=None,
         balance=balance,
     )
 

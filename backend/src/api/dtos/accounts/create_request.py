@@ -1,11 +1,9 @@
 from decimal import Decimal
-from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
 
 
 class CreateAccountRequest(BaseModel):
-    institution_id: UUID | None = None
     name: str = Field(min_length=1, max_length=60)
     currency: str = "EUR"
     balance: Decimal

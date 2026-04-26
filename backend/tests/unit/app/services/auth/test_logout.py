@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 from uuid import uuid4
 
 from src.app.services.auth.logout import Logout
-from src.domain.entities.refresh_token import RefreshToken
+from src.db.models.refresh_token import RefreshToken
 from tests.fakes.clock import FixedClock
 from tests.fakes.repositories.refresh_token_repository import (
     InMemoryRefreshTokenRepository,

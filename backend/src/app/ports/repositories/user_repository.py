@@ -1,7 +1,7 @@
 from typing import Protocol
 from uuid import UUID
 
-from src.domain.entities.user import User
+from src.db.models.user import User
 
 
 class UserRepository(Protocol):

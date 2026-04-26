@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from src.domain.entities.categorization_rule import CategorizationRule
+from src.db.models.categorization_rule import CategorizationRule
 
 
 class InMemoryCategorizationRuleRepository:

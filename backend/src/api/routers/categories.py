@@ -14,7 +14,7 @@ from src.api.dtos.categories.response import CategoryResponse
 from src.app.services.categories.create_category import CreateCategory
 from src.app.services.categories.delete_category import DeleteCategory
 from src.app.services.categories.list_categories import ListCategories
-from src.domain.entities.user import User
+from src.db.models.user import User
 
 router = APIRouter()
 

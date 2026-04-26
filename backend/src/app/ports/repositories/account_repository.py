@@ -1,7 +1,7 @@
 from typing import Protocol
 from uuid import UUID
 
-from src.domain.entities.account import Account
+from src.db.models.account import Account
 
 
 class AccountRepository(Protocol):

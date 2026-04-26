@@ -5,9 +5,9 @@ from src.app.ports.jwt_issuer import JwtIssuer
 from src.app.ports.token_generator import TokenGenerator
 from src.app.ports.unit_of_work import UnitOfWork
 from src.app.services.auth.token_pair import TokenPair
-from src.domain.entities.refresh_token import RefreshToken
-from src.domain.exceptions.refresh_token_not_found import RefreshTokenNotFound
-from src.domain.exceptions.refresh_token_revoked import RefreshTokenRevoked
+from src.db.models.refresh_token import RefreshToken
+from src.app.exceptions.refresh_token_not_found import RefreshTokenNotFound
+from src.app.exceptions.refresh_token_revoked import RefreshTokenRevoked
 
 
 class RefreshTokens:

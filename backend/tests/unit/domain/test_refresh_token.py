@@ -4,9 +4,9 @@ from uuid import uuid4
 
 import pytest
 
-from src.domain.entities.refresh_token import RefreshToken
-from src.domain.exceptions.refresh_token_expired import RefreshTokenExpired
-from src.domain.exceptions.refresh_token_revoked import RefreshTokenRevoked
+from src.db.models.refresh_token import RefreshToken
+from src.app.exceptions.refresh_token_expired import RefreshTokenExpired
+from src.app.exceptions.refresh_token_revoked import RefreshTokenRevoked
 
 
 class TestRevoke:

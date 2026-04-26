@@ -2,7 +2,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from src.domain.entities.category import Category
+from src.db.models.category import Category
 
 
 class CategoryResponse(BaseModel):

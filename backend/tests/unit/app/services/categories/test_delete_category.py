@@ -6,7 +6,7 @@ import pytest
 from src.app.exceptions.cannot_delete_system_category import CannotDeleteSystemCategory
 from src.app.exceptions.category_not_found import CategoryNotFound
 from src.app.services.categories.delete_category import DeleteCategory
-from src.domain.entities.category import Category
+from src.db.models.category import Category
 from tests.fakes.repositories.category_repository import InMemoryCategoryRepository
 from tests.fakes.repositories.refresh_token_repository import InMemoryRefreshTokenRepository
 from tests.fakes.repositories.user_repository import InMemoryUserRepository

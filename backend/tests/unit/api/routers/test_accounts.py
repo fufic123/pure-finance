@@ -17,10 +17,9 @@ from src.api.dependencies import (
 )
 from src.api.main import create_app
 from src.app.exceptions.account_not_found import AccountNotFound
-from src.app.exceptions.institution_not_found import InstitutionNotFound
 from src.app.services.accounts.get_account_balance import AccountBalance
-from src.domain.entities.account import Account
-from src.domain.entities.user import User
+from src.db.models.account import Account
+from src.db.models.user import User
 from tests.fakes.rate_limiter import AllowingRateLimiter
 
 _NOW = datetime(2026, 4, 21, 12, 0, 0, tzinfo=UTC)
@@ -114,7 +113,6 @@ def _make_account(user_id: UUID | None = None) -> Account:
         currency="EUR",
         name="Main",
         created_at=_NOW,
-        institution_id=None,
         balance=Decimal("100.00"),
     )
 
@@ -174,24 +172,6 @@ class TestCreateAccountRoute:
         data = response.json()
         assert data["name"] == "Main"
         assert Decimal(str(data["balance"])) == Decimal("100.00")
-
-    def test_returns_404_when_institution_unknown(self) -> None:
-        client, app = _authed_client()
-        app.dependency_overrides[get_create_account] = lambda: _StubCreateAccount(
-            raises=InstitutionNotFound()
-        )
-
-        response = client.post(
-            "/api/accounts",
-            json={
-                "institution_id": str(uuid4()),
-                "name": "Main",
-                "currency": "EUR",
-                "balance": "0",
-            },
-        )
-
-        assert response.status_code == 404
 
     def test_rejects_non_eur_currency(self) -> None:
         client, _ = _authed_client()
@@ -255,7 +235,7 @@ class TestGetAccountBalanceRoute:
     def test_returns_balance(self) -> None:
         client, app = _authed_client()
         app.dependency_overrides[get_get_account_balance] = lambda: _StubGetAccountBalance(
-            AccountBalance(amount=Decimal("500.00"), currency="EUR", updated_at=_NOW)
+            AccountBalance(amount=Decimal("500.00"), currency="EUR")
         )
 
         response = client.get(f"/api/accounts/{uuid4()}/balance")
@@ -264,14 +244,6 @@ class TestGetAccountBalanceRoute:
         data = response.json()
         assert Decimal(str(data["amount"])) == Decimal("500.00")
         assert data["currency"] == "EUR"
-
-    def test_returns_404_when_no_snapshot(self) -> None:
-        client, app = _authed_client()
-        app.dependency_overrides[get_get_account_balance] = lambda: _StubGetAccountBalance(balance=None)
-
-        response = client.get(f"/api/accounts/{uuid4()}/balance")
-
-        assert response.status_code == 404
 
     def test_returns_404_when_not_owned(self) -> None:
         client, app = _authed_client()

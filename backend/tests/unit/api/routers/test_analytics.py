@@ -15,7 +15,7 @@ from src.api.main import create_app
 from src.app.exceptions.account_not_found import AccountNotFound
 from src.app.services.analytics.get_by_category import CategoryTotal
 from src.app.services.analytics.get_summary import AnalyticsSummary
-from src.domain.entities.user import User
+from src.db.models.user import User
 from tests.fakes.rate_limiter import AllowingRateLimiter
 
 _NOW = datetime(2026, 4, 19, 12, 0, 0, tzinfo=UTC)

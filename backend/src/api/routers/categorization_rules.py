@@ -14,7 +14,7 @@ from src.api.dtos.rules.response import RuleResponse
 from src.app.services.categorization_rules.create_rule import CreateRule
 from src.app.services.categorization_rules.delete_rule import DeleteRule
 from src.app.services.categorization_rules.list_rules import ListRules
-from src.domain.entities.user import User
+from src.db.models.user import User
 
 router = APIRouter()
 

@@ -6,8 +6,8 @@ import pytest
 
 from src.app.exceptions.transaction_not_found import TransactionNotFound
 from src.app.services.transactions.delete_transaction import DeleteTransaction
-from src.domain.entities.account import Account
-from src.domain.entities.transaction import Transaction
+from src.db.models.account import Account
+from src.db.models.transaction import Transaction
 from tests.fakes.repositories.account_repository import InMemoryAccountRepository
 from tests.fakes.repositories.refresh_token_repository import InMemoryRefreshTokenRepository
 from tests.fakes.repositories.transaction_repository import InMemoryTransactionRepository
@@ -32,7 +32,6 @@ async def _setup(user_id, tx_user_id=None):
         currency="EUR",
         name="Main",
         created_at=_NOW,
-        institution_id=None,
         balance=Decimal("0"),
     )
     await uow.accounts.add(account)

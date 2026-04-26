@@ -5,10 +5,10 @@ import pytest
 
 from src.app.services.auth.refresh_tokens import RefreshTokens
 from src.app.services.auth.token_pair import TokenPair
-from src.domain.entities.refresh_token import RefreshToken
-from src.domain.exceptions.refresh_token_expired import RefreshTokenExpired
-from src.domain.exceptions.refresh_token_not_found import RefreshTokenNotFound
-from src.domain.exceptions.refresh_token_revoked import RefreshTokenRevoked
+from src.db.models.refresh_token import RefreshToken
+from src.app.exceptions.refresh_token_expired import RefreshTokenExpired
+from src.app.exceptions.refresh_token_not_found import RefreshTokenNotFound
+from src.app.exceptions.refresh_token_revoked import RefreshTokenRevoked
 from tests.fakes.clock import FixedClock
 from tests.fakes.jwt_issuer import StubJwtIssuer
 from tests.fakes.repositories.refresh_token_repository import (

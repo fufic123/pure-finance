@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from src.domain.entities.balance_snapshot import BalanceSnapshot
+from src.db.models.balance_snapshot import BalanceSnapshot
 
 
 class InMemoryBalanceSnapshotRepository:

@@ -1,7 +1,7 @@
 from typing import Protocol
 from uuid import UUID
 
-from src.domain.entities.category import Category
+from src.db.models.category import Category
 
 
 class CategoryRepository(Protocol):

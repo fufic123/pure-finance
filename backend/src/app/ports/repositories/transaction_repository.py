@@ -2,7 +2,7 @@ from datetime import date
 from typing import Protocol
 from uuid import UUID
 
-from src.domain.entities.transaction import Transaction
+from src.db.models.transaction import Transaction
 
 
 class TransactionRepository(Protocol):

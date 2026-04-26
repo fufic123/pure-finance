@@ -8,8 +8,8 @@ from src.app.ports.state_store import StateStore
 from src.app.ports.token_generator import TokenGenerator
 from src.app.ports.unit_of_work import UnitOfWork
 from src.app.services.auth.token_pair import TokenPair
-from src.domain.entities.refresh_token import RefreshToken
-from src.domain.entities.user import User
+from src.db.models.refresh_token import RefreshToken
+from src.db.models.user import User
 
 
 class GoogleCallback:

@@ -1,5 +1,6 @@
 from datetime import datetime
-from uuid import UUID, uuid4
+from uuid import UUID
+from uuid_extensions import uuid7
 
 from sqlalchemy import ForeignKey, Index, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
@@ -24,8 +25,8 @@ class AppLog(Base):
 
     @classmethod
     def info(cls, message: str, now: datetime, user_id: UUID | None = None) -> "AppLog":
-        return cls(id=uuid4(), level="INFO", message=message, user_id=user_id, created_at=now)
+        return cls(id=uuid7(), level="INFO", message=message, user_id=user_id, created_at=now)
 
     @classmethod
     def error(cls, message: str, now: datetime, user_id: UUID | None = None, traceback: str | None = None) -> "AppLog":
-        return cls(id=uuid4(), level="ERROR", message=message, user_id=user_id, traceback=traceback, created_at=now)
+        return cls(id=uuid7(), level="ERROR", message=message, user_id=user_id, traceback=traceback, created_at=now)

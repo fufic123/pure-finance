@@ -1,5 +1,6 @@
 from datetime import datetime
-from uuid import UUID, uuid4
+from uuid import UUID
+from uuid_extensions import uuid7
 
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -18,7 +19,7 @@ class CategorizationRule(Base):
 
     @classmethod
     def create(cls, user_id: UUID, category_id: UUID, keyword: str, now: datetime) -> "CategorizationRule":
-        return cls(id=uuid4(), user_id=user_id, category_id=category_id, keyword=keyword, created_at=now)
+        return cls(id=uuid7(), user_id=user_id, category_id=category_id, keyword=keyword, created_at=now)
 
     def matches(self, description: str) -> bool:
         return self.keyword.lower() in description.lower()

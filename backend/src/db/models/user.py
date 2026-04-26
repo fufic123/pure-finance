@@ -1,5 +1,6 @@
 from datetime import datetime
-from uuid import UUID, uuid4
+from uuid import UUID
+from uuid_extensions import uuid7
 
 from sqlalchemy import Boolean, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -18,4 +19,4 @@ class User(Base):
 
     @classmethod
     def register(cls, google_id: str, email: str, now: datetime) -> "User":
-        return cls(id=uuid4(), google_id=google_id, email=email, created_at=now, is_admin=False)
+        return cls(id=uuid7(), google_id=google_id, email=email, created_at=now, is_admin=False)

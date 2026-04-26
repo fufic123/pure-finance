@@ -1,5 +1,6 @@
 from datetime import datetime
-from uuid import UUID, uuid4
+from uuid import UUID
+from uuid_extensions import uuid7
 
 from sqlalchemy import Boolean, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -19,4 +20,4 @@ class Category(Base):
 
     @classmethod
     def create_user(cls, user_id: UUID, name: str, parent_id: UUID | None, now: datetime) -> "Category":
-        return cls(id=uuid4(), user_id=user_id, parent_id=parent_id, name=name, is_system=False, created_at=now)
+        return cls(id=uuid7(), user_id=user_id, parent_id=parent_id, name=name, is_system=False, created_at=now)

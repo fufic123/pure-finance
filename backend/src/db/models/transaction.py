@@ -1,6 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
-from uuid import UUID, uuid4
+from uuid import UUID
+from uuid_extensions import uuid7
 
 from sqlalchemy import Boolean, ForeignKey, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -35,7 +36,7 @@ class Transaction(Base):
         external_id: str | None = None,
     ) -> "Transaction":
         return cls(
-            id=uuid4(),
+            id=uuid7(),
             account_id=account_id,
             amount=amount,
             currency=currency,

@@ -1,6 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
-from uuid import UUID, uuid4
+from uuid import UUID
+from uuid_extensions import uuid7
 
 from sqlalchemy import ForeignKey, Index, Numeric
 from sqlalchemy.orm import Mapped, mapped_column
@@ -25,4 +26,4 @@ class BalanceSnapshot(Base):
     def create(cls, account_id: UUID, amount: Decimal, recorded_at: datetime, now: datetime) -> "BalanceSnapshot":
         if recorded_at.tzinfo is None:
             raise ValueError("recorded_at must be timezone-aware")
-        return cls(id=uuid4(), account_id=account_id, amount=amount, recorded_at=recorded_at, created_at=now)
+        return cls(id=uuid7(), account_id=account_id, amount=amount, recorded_at=recorded_at, created_at=now)

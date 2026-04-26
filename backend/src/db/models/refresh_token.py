@@ -1,6 +1,7 @@
 import hashlib
 from datetime import datetime, timedelta
-from uuid import UUID, uuid4
+from uuid import UUID
+from uuid_extensions import uuid7
 
 from sqlalchemy import ForeignKey, Index, LargeBinary
 from sqlalchemy.orm import Mapped, mapped_column
@@ -27,7 +28,7 @@ class RefreshToken(Base):
     @classmethod
     def issue(cls, user_id: UUID, token_hash: bytes, now: datetime, lifetime_seconds: int) -> "RefreshToken":
         return cls(
-            id=uuid4(),
+            id=uuid7(),
             user_id=user_id,
             token_hash=token_hash,
             created_at=now,

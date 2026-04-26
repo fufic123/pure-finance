@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from functools import lru_cache
 from typing import Annotated
 
@@ -47,65 +46,82 @@ AUTH_RATE_LIMIT = 30
 AUTH_RATE_WINDOW_SECONDS = 60
 
 
-@dataclass
-class _S:
-    settings: Settings
-    engine: AsyncEngine
-    session_maker: async_sessionmaker[AsyncSession]
-    http: httpx.AsyncClient
-    redis: Redis
-    clock: SystemClock
-    jwt: PyJwtIssuer
-    oauth: GoogleOauthClient
-    token_generator: SecretsTokenGenerator
-    state_store: RedisStateStore
-    rate_limiter: RedisRateLimiter
+@lru_cache(maxsize=1)
+def _settings() -> Settings:
+    return Settings()
 
 
 @lru_cache(maxsize=1)
-def _s() -> _S:
-    settings = Settings()
-    engine = create_engine(settings.database_url)
-    session_maker = create_session_maker(engine)
-    http = httpx.AsyncClient()
-    redis: Redis = Redis.from_url(settings.redis_url, decode_responses=True)
-    clock = SystemClock()
-    jwt = PyJwtIssuer(
-        secret=settings.jwt_secret,
-        lifetime_seconds=settings.access_token_lifetime_seconds,
-    )
-    oauth = GoogleOauthClient(
-        client_id=settings.google_client_id,
-        client_secret=settings.google_client_secret,
-        http_client=http,
-    )
-    token_generator = SecretsTokenGenerator()
-    state_store = RedisStateStore(redis)
-    rate_limiter = RedisRateLimiter(redis)
+def _engine() -> AsyncEngine:
+    return create_engine(_settings().database_url)
 
-    return _S(
-        settings=settings, engine=engine, session_maker=session_maker,
-        http=http, redis=redis, clock=clock, jwt=jwt, oauth=oauth,
-        token_generator=token_generator, state_store=state_store,
-        rate_limiter=rate_limiter,
+
+@lru_cache(maxsize=1)
+def _session_maker() -> async_sessionmaker[AsyncSession]:
+    return create_session_maker(_engine())
+
+
+@lru_cache(maxsize=1)
+def _http() -> httpx.AsyncClient:
+    return httpx.AsyncClient()
+
+
+@lru_cache(maxsize=1)
+def _redis() -> Redis:
+    return Redis.from_url(_settings().redis_url, decode_responses=True)
+
+
+@lru_cache(maxsize=1)
+def _clock() -> SystemClock:
+    return SystemClock()
+
+
+@lru_cache(maxsize=1)
+def _jwt() -> PyJwtIssuer:
+    s = _settings()
+    return PyJwtIssuer(secret=s.jwt_secret, lifetime_seconds=s.access_token_lifetime_seconds)
+
+
+@lru_cache(maxsize=1)
+def _oauth() -> GoogleOauthClient:
+    s = _settings()
+    return GoogleOauthClient(
+        client_id=s.google_client_id,
+        client_secret=s.google_client_secret,
+        http_client=_http(),
     )
+
+
+@lru_cache(maxsize=1)
+def _token_generator() -> SecretsTokenGenerator:
+    return SecretsTokenGenerator()
+
+
+@lru_cache(maxsize=1)
+def _state_store() -> RedisStateStore:
+    return RedisStateStore(_redis())
+
+
+@lru_cache(maxsize=1)
+def _rate_limiter() -> RedisRateLimiter:
+    return RedisRateLimiter(_redis())
 
 
 def _uow_factory() -> SqlAlchemyUnitOfWork:
-    return SqlAlchemyUnitOfWork(_s().session_maker)
+    return SqlAlchemyUnitOfWork(_session_maker())
 
 
 def get_rate_limiter() -> RateLimiter:
-    return _s().rate_limiter
+    return _rate_limiter()
 
 
 async def dispose() -> None:
-    if _s.cache_info().currsize == 0:
-        return
-    s = _s()
-    await s.http.aclose()
-    await s.redis.aclose()
-    await s.engine.dispose()
+    if _engine.cache_info().currsize > 0:
+        await _engine().dispose()
+    if _http.cache_info().currsize > 0:
+        await _http().aclose()
+    if _redis.cache_info().currsize > 0:
+        await _redis().aclose()
 
 
 async def rate_limit_auth(
@@ -118,46 +134,45 @@ async def rate_limit_auth(
 
 
 def get_start_google_auth() -> StartGoogleAuth:
-    s = _s()
+    s = _settings()
     return StartGoogleAuth(
-        state_store=s.state_store,
-        token_generator=s.token_generator,
-        client_id=s.settings.google_client_id,
-        state_lifetime_seconds=s.settings.oauth_state_lifetime_seconds,
+        state_store=_state_store(),
+        token_generator=_token_generator(),
+        client_id=s.google_client_id,
+        state_lifetime_seconds=s.oauth_state_lifetime_seconds,
     )
 
 
 def get_google_callback() -> GoogleCallback:
-    s = _s()
+    s = _settings()
     return GoogleCallback(
         uow_factory=_uow_factory,
-        clock=s.clock,
-        jwt_issuer=s.jwt,
-        oauth_provider=s.oauth,
-        state_store=s.state_store,
-        token_generator=s.token_generator,
-        refresh_lifetime_seconds=s.settings.refresh_token_lifetime_seconds,
+        clock=_clock(),
+        jwt_issuer=_jwt(),
+        oauth_provider=_oauth(),
+        state_store=_state_store(),
+        token_generator=_token_generator(),
+        refresh_lifetime_seconds=s.refresh_token_lifetime_seconds,
     )
 
 
 def get_refresh_tokens() -> RefreshTokens:
-    s = _s()
+    s = _settings()
     return RefreshTokens(
         uow_factory=_uow_factory,
-        clock=s.clock,
-        jwt_issuer=s.jwt,
-        token_generator=s.token_generator,
-        refresh_lifetime_seconds=s.settings.refresh_token_lifetime_seconds,
+        clock=_clock(),
+        jwt_issuer=_jwt(),
+        token_generator=_token_generator(),
+        refresh_lifetime_seconds=s.refresh_token_lifetime_seconds,
     )
 
 
 def get_logout() -> Logout:
-    return Logout(uow_factory=_uow_factory, clock=_s().clock)
+    return Logout(uow_factory=_uow_factory, clock=_clock())
 
 
 def get_current_user_service() -> GetCurrentUser:
-    s = _s()
-    return GetCurrentUser(uow_factory=_uow_factory, clock=s.clock, jwt_issuer=s.jwt)
+    return GetCurrentUser(uow_factory=_uow_factory, clock=_clock(), jwt_issuer=_jwt())
 
 
 def get_get_account() -> GetAccount:
@@ -173,7 +188,7 @@ def get_delete_account() -> DeleteAccount:
 
 
 def get_create_account() -> CreateAccount:
-    return CreateAccount(uow_factory=_uow_factory, clock=_s().clock)
+    return CreateAccount(uow_factory=_uow_factory, clock=_clock())
 
 
 def get_update_account() -> UpdateAccount:
@@ -193,7 +208,7 @@ def get_update_transaction() -> UpdateTransaction:
 
 
 def get_create_transaction() -> CreateTransaction:
-    return CreateTransaction(uow_factory=_uow_factory, clock=_s().clock)
+    return CreateTransaction(uow_factory=_uow_factory, clock=_clock())
 
 
 def get_delete_transaction() -> DeleteTransaction:
@@ -213,7 +228,7 @@ def get_list_categories() -> ListCategories:
 
 
 def get_create_category() -> CreateCategory:
-    return CreateCategory(uow_factory=_uow_factory, clock=_s().clock)
+    return CreateCategory(uow_factory=_uow_factory, clock=_clock())
 
 
 def get_delete_category() -> DeleteCategory:
@@ -225,7 +240,7 @@ def get_list_rules() -> ListRules:
 
 
 def get_create_rule() -> CreateRule:
-    return CreateRule(uow_factory=_uow_factory, clock=_s().clock)
+    return CreateRule(uow_factory=_uow_factory, clock=_clock())
 
 
 def get_delete_rule() -> DeleteRule:

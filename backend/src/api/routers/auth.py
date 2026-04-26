@@ -10,12 +10,12 @@ from src.api.dependencies import (
     get_start_google_auth,
     rate_limit_auth,
 )
-from src.api.dtos.google_auth_start_request import GoogleAuthStartRequest
-from src.api.dtos.google_auth_start_response import GoogleAuthStartResponse
-from src.api.dtos.google_callback_request import GoogleCallbackRequest
-from src.api.dtos.logout_request import LogoutRequest
-from src.api.dtos.refresh_request import RefreshRequest
-from src.api.dtos.token_pair_response import TokenPairResponse
+from src.api.dtos.auth.callback_request import GoogleCallbackRequest
+from src.api.dtos.auth.logout_request import LogoutRequest
+from src.api.dtos.auth.refresh_request import RefreshRequest
+from src.api.dtos.auth.start_request import GoogleAuthStartRequest
+from src.api.dtos.auth.start_response import GoogleAuthStartResponse
+from src.api.dtos.auth.token_pair_response import TokenPairResponse
 from src.app.services.auth.google_callback import GoogleCallback
 from src.app.services.auth.logout import Logout
 from src.app.services.auth.refresh_tokens import RefreshTokens

@@ -9,8 +9,8 @@ from src.api.dependencies import (
     get_analytics_summary,
     get_current_user,
 )
-from src.api.dtos.analytics_by_category_response import AnalyticsByCategoryResponse
-from src.api.dtos.analytics_summary_response import AnalyticsSummaryResponse
+from src.api.dtos.analytics.by_category_response import AnalyticsByCategoryResponse
+from src.api.dtos.analytics.summary_response import AnalyticsSummaryResponse
 from src.app.services.analytics.get_by_category import GetAnalyticsByCategory
 from src.app.services.analytics.get_summary import GetAnalyticsSummary
 from src.domain.entities.user import User

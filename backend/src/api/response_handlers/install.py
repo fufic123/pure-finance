@@ -1,43 +1,21 @@
 from fastapi import FastAPI
 
-from src.api.response_handlers.app.access_token_invalid import (
-    handle as handle_access_token_invalid,
+from src.api.response_handlers.app_errors import (
+    handle_access_token_invalid,
+    handle_account_not_found,
+    handle_cannot_delete_system_category,
+    handle_category_not_found,
+    handle_institution_not_found,
+    handle_oauth_state_invalid,
+    handle_rate_limit_exceeded,
+    handle_rule_not_found,
+    handle_transaction_not_found,
 )
-from src.api.response_handlers.app.account_not_found import (
-    handle as handle_account_not_found,
-)
-from src.api.response_handlers.app.cannot_delete_system_category import (
-    handle as handle_cannot_delete_system_category,
-)
-from src.api.response_handlers.app.category_not_found import (
-    handle as handle_category_not_found,
-)
-from src.api.response_handlers.app.institution_not_found import (
-    handle as handle_institution_not_found,
-)
-from src.api.response_handlers.app.oauth_state_invalid import (
-    handle as handle_oauth_state_invalid,
-)
-from src.api.response_handlers.app.rate_limit_exceeded import (
-    handle as handle_rate_limit_exceeded,
-)
-from src.api.response_handlers.app.rule_not_found import (
-    handle as handle_rule_not_found,
-)
-from src.api.response_handlers.app.transaction_not_found import (
-    handle as handle_transaction_not_found,
-)
-from src.api.response_handlers.domain.refresh_token_expired import (
-    handle as handle_refresh_token_expired,
-)
-from src.api.response_handlers.domain.refresh_token_not_found import (
-    handle as handle_refresh_token_not_found,
-)
-from src.api.response_handlers.domain.refresh_token_revoked import (
-    handle as handle_refresh_token_revoked,
-)
-from src.api.response_handlers.domain.user_not_found import (
-    handle as handle_user_not_found,
+from src.api.response_handlers.domain_errors import (
+    handle_refresh_token_expired,
+    handle_refresh_token_not_found,
+    handle_refresh_token_revoked,
+    handle_user_not_found,
 )
 from src.app.exceptions.access_token_invalid import AccessTokenInvalid
 from src.app.exceptions.account_not_found import AccountNotFound

@@ -11,9 +11,9 @@ from src.api.dependencies import (
     get_list_transactions,
     get_update_transaction,
 )
-from src.api.dtos.create_transaction_request import CreateTransactionRequest
-from src.api.dtos.transaction_response import TransactionResponse
-from src.api.dtos.update_transaction_request import UpdateTransactionRequest
+from src.api.dtos.transactions.create_request import CreateTransactionRequest
+from src.api.dtos.transactions.response import TransactionResponse
+from src.api.dtos.transactions.update_request import UpdateTransactionRequest
 from src.app.services.transactions.create_transaction import CreateTransaction
 from src.app.services.transactions.delete_transaction import DeleteTransaction
 from src.app.services.transactions.list_transactions import ListTransactions

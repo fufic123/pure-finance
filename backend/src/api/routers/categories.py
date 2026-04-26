@@ -9,8 +9,8 @@ from src.api.dependencies import (
     get_delete_category,
     get_list_categories,
 )
-from src.api.dtos.category_request import CreateCategoryRequest
-from src.api.dtos.category_response import CategoryResponse
+from src.api.dtos.categories.create_request import CreateCategoryRequest
+from src.api.dtos.categories.response import CategoryResponse
 from src.app.services.categories.create_category import CreateCategory
 from src.app.services.categories.delete_category import DeleteCategory
 from src.app.services.categories.list_categories import ListCategories

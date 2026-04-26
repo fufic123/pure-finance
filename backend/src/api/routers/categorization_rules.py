@@ -9,8 +9,8 @@ from src.api.dependencies import (
     get_delete_rule,
     get_list_rules,
 )
-from src.api.dtos.rule_request import CreateRuleRequest
-from src.api.dtos.rule_response import RuleResponse
+from src.api.dtos.rules.create_request import CreateRuleRequest
+from src.api.dtos.rules.response import RuleResponse
 from src.app.services.categorization_rules.create_rule import CreateRule
 from src.app.services.categorization_rules.delete_rule import DeleteRule
 from src.app.services.categorization_rules.list_rules import ListRules

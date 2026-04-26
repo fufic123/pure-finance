@@ -12,10 +12,10 @@ from src.api.dependencies import (
     get_list_accounts,
     get_update_account,
 )
-from src.api.dtos.account_response import AccountResponse
-from src.api.dtos.balance_response import BalanceResponse
-from src.api.dtos.create_account_request import CreateAccountRequest
-from src.api.dtos.update_account_request import UpdateAccountRequest
+from src.api.dtos.accounts.balance_response import BalanceResponse
+from src.api.dtos.accounts.create_request import CreateAccountRequest
+from src.api.dtos.accounts.response import AccountResponse
+from src.api.dtos.accounts.update_request import UpdateAccountRequest
 from src.app.services.accounts.create_account import CreateAccount
 from src.app.services.accounts.delete_account import DeleteAccount
 from src.app.services.accounts.get_account import GetAccount

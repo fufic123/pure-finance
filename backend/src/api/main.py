@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from src.api.admin.router import router as admin_router
 from src.api.response_handlers import install_handlers
 from src.api.routers.analytics import router as analytics_router
 from src.api.routers.auth import router as auth_router
@@ -35,6 +36,7 @@ def create_app(allow_origins: list[str] | None = None) -> FastAPI:
             allow_headers=["*"],
         )
     install_handlers(app)
+    app.include_router(admin_router, prefix=API_PREFIX)
     app.include_router(auth_router, prefix=API_PREFIX)
     app.include_router(users_router, prefix=API_PREFIX)
     app.include_router(analytics_router, prefix=API_PREFIX)

@@ -11,7 +11,10 @@ class InMemoryUserRepository:
     async def add(self, user: User) -> None:
         self._by_id[user.id] = user
 
-    async def get_by_id(self, user_id: UUID) -> User:
+    async def get_by_id(self, user_id: UUID) -> User | None:
+        return self._by_id.get(user_id)
+
+    async def get_by_id_or_raise(self, user_id: UUID) -> User:
         if user_id not in self._by_id:
             raise UserNotFound()
         return self._by_id[user_id]

@@ -26,5 +26,9 @@ class PostgresCategoryRepository:
         result = await self._session.execute(stmt)
         return list(result.scalars().all())
 
+    async def list_all(self) -> list[Category]:
+        result = await self._session.execute(select(Category).order_by(Category.is_system.desc(), Category.name))
+        return list(result.scalars().all())
+
     async def delete(self, category_id: UUID) -> None:
         await self._session.execute(delete(Category).where(Category.id == category_id))

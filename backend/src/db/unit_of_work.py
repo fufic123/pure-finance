@@ -10,6 +10,7 @@ from src.app.ports.repositories.refresh_token_repository import RefreshTokenRepo
 from src.app.ports.repositories.transaction_repository import TransactionRepository
 from src.app.ports.repositories.user_repository import UserRepository
 from src.db.repositories.account_repository import PostgresAccountRepository
+from src.db.repositories.app_log_repository import AppLogRepository
 from src.db.repositories.balance_snapshot_repository import PostgresBalanceSnapshotRepository
 from src.db.repositories.categorization_rule_repository import PostgresCategorizationRuleRepository
 from src.db.repositories.category_repository import PostgresCategoryRepository
@@ -26,6 +27,7 @@ class SqlAlchemyUnitOfWork:
     transactions: TransactionRepository
     categories: CategoryRepository
     categorization_rules: CategorizationRuleRepository
+    app_logs: AppLogRepository
 
     def __init__(self, session_maker: async_sessionmaker[AsyncSession]) -> None:
         self._session_maker = session_maker
@@ -40,6 +42,7 @@ class SqlAlchemyUnitOfWork:
         self.transactions = PostgresTransactionRepository(self._session)
         self.categories = PostgresCategoryRepository(self._session)
         self.categorization_rules = PostgresCategorizationRuleRepository(self._session)
+        self.app_logs = AppLogRepository(self._session)
         return self
 
     async def __aexit__(

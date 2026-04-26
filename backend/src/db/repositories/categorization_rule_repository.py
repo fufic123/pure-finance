@@ -23,5 +23,9 @@ class PostgresCategorizationRuleRepository:
         )
         return list(result.scalars().all())
 
+    async def list_all(self) -> list[CategorizationRule]:
+        result = await self._session.execute(select(CategorizationRule).order_by(CategorizationRule.created_at))
+        return list(result.scalars().all())
+
     async def delete(self, rule_id: UUID) -> None:
         await self._session.execute(delete(CategorizationRule).where(CategorizationRule.id == rule_id))

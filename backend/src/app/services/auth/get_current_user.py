@@ -22,4 +22,4 @@ class GetCurrentUser:
         user_id = self._jwt.verify(access_token, now)
 
         async with self._uow_factory() as uow:
-            return await uow.users.get_by_id(user_id)
+            return await uow.users.get_by_id_or_raise(user_id)

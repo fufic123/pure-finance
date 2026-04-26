@@ -6,7 +6,6 @@ from src.app.exceptions.institution_not_found import InstitutionNotFound
 from src.app.ports.clock import Clock
 from src.app.ports.unit_of_work import UnitOfWork
 from src.domain.entities.account import Account
-from src.domain.entities.balance_snapshot import BalanceSnapshot
 
 
 class CreateAccount:
@@ -43,12 +42,4 @@ class CreateAccount:
                 balance=balance,
             )
             await uow.accounts.add(account)
-
-            snapshot = BalanceSnapshot.create(
-                account_id=account.id,
-                amount=balance,
-                recorded_at=now,
-                clock=self._clock,
-            )
-            await uow.balance_snapshots.add(snapshot)
             return account

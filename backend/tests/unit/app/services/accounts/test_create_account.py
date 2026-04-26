@@ -29,7 +29,7 @@ def _make_uow(institutions: list[Institution] | None = None) -> FakeUnitOfWork:
 
 
 @pytest.mark.asyncio
-async def test_creates_account_and_first_snapshot() -> None:
+async def test_creates_account_with_balance() -> None:
     uow = _make_uow()
     service = CreateAccount(uow_factory=lambda: uow, clock=FixedClock(_NOW))
     user_id = uuid4()
@@ -49,8 +49,7 @@ async def test_creates_account_and_first_snapshot() -> None:
     assert account.institution_id is None
 
     snaps = await uow.balance_snapshots.list_by_account(account.id)
-    assert len(snaps) == 1
-    assert snaps[0].amount == Decimal("100.00")
+    assert snaps == []
 
 
 @pytest.mark.asyncio
@@ -83,21 +82,3 @@ async def test_raises_when_institution_unknown() -> None:
             currency="EUR",
             balance=Decimal("0"),
         )
-
-
-@pytest.mark.asyncio
-async def test_snapshot_uses_initial_balance_even_when_zero() -> None:
-    uow = _make_uow()
-    service = CreateAccount(uow_factory=lambda: uow, clock=FixedClock(_NOW))
-
-    account = await service(
-        user_id=uuid4(),
-        institution_id=None,
-        name="Zero",
-        currency="EUR",
-        balance=Decimal("0"),
-    )
-
-    snaps = await uow.balance_snapshots.list_by_account(account.id)
-    assert len(snaps) == 1
-    assert snaps[0].amount == Decimal("0")

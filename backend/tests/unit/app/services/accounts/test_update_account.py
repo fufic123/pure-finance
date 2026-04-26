@@ -7,7 +7,6 @@ import pytest
 from src.app.exceptions.account_not_found import AccountNotFound
 from src.app.services.accounts.update_account import UpdateAccount
 from src.domain.entities.account import Account
-from tests.fakes.clock import FixedClock
 from tests.fakes.repositories.account_repository import InMemoryAccountRepository
 from tests.fakes.repositories.balance_snapshot_repository import InMemoryBalanceSnapshotRepository
 from tests.fakes.repositories.refresh_token_repository import InMemoryRefreshTokenRepository
@@ -55,7 +54,7 @@ async def test_updates_name_only() -> None:
     )
     await uow.accounts.add(account)
 
-    service = UpdateAccount(uow_factory=lambda: uow, clock=FixedClock(_NOW))
+    service = UpdateAccount(uow_factory=lambda: uow)
     updated = await service(
         account_id=account.id,
         user_id=user_id,
@@ -67,12 +66,10 @@ async def test_updates_name_only() -> None:
 
     assert updated.name == "Renamed"
     assert updated.balance == Decimal("100.00")
-    snaps = await uow.balance_snapshots.list_by_account(account.id)
-    assert snaps == []
 
 
 @pytest.mark.asyncio
-async def test_updates_balance_appends_snapshot() -> None:
+async def test_updates_balance() -> None:
     user_id = uuid4()
     account = _account(user_id)
     uow = FakeUnitOfWork(
@@ -83,7 +80,7 @@ async def test_updates_balance_appends_snapshot() -> None:
     )
     await uow.accounts.add(account)
 
-    service = UpdateAccount(uow_factory=lambda: uow, clock=FixedClock(_NOW))
+    service = UpdateAccount(uow_factory=lambda: uow)
     updated = await service(
         account_id=account.id,
         user_id=user_id,
@@ -96,8 +93,7 @@ async def test_updates_balance_appends_snapshot() -> None:
     assert updated.name == "Main"
     assert updated.balance == Decimal("250.00")
     snaps = await uow.balance_snapshots.list_by_account(account.id)
-    assert len(snaps) == 1
-    assert snaps[0].amount == Decimal("250.00")
+    assert snaps == []
 
 
 @pytest.mark.asyncio
@@ -112,7 +108,7 @@ async def test_updates_name_and_balance() -> None:
     )
     await uow.accounts.add(account)
 
-    service = UpdateAccount(uow_factory=lambda: uow, clock=FixedClock(_NOW))
+    service = UpdateAccount(uow_factory=lambda: uow)
     updated = await service(
         account_id=account.id,
         user_id=user_id,
@@ -124,8 +120,6 @@ async def test_updates_name_and_balance() -> None:
 
     assert updated.name == "Newname"
     assert updated.balance == Decimal("500.00")
-    snaps = await uow.balance_snapshots.list_by_account(account.id)
-    assert len(snaps) == 1
 
 
 @pytest.mark.asyncio
@@ -139,11 +133,11 @@ async def test_raises_when_account_foreign() -> None:
     )
     await uow.accounts.add(account)
 
-    service = UpdateAccount(uow_factory=lambda: uow, clock=FixedClock(_NOW))
+    service = UpdateAccount(uow_factory=lambda: uow)
     with pytest.raises(AccountNotFound):
         await service(
             account_id=account.id,
-            user_id=uuid4(),  # different user
+            user_id=uuid4(),
             name="X",
             balance=None,
             name_provided=True,
@@ -160,7 +154,7 @@ async def test_raises_when_account_missing() -> None:
         balance_snapshots=InMemoryBalanceSnapshotRepository(),
     )
 
-    service = UpdateAccount(uow_factory=lambda: uow, clock=FixedClock(_NOW))
+    service = UpdateAccount(uow_factory=lambda: uow)
     with pytest.raises(AccountNotFound):
         await service(
             account_id=uuid4(),

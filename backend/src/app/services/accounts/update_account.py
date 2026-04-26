@@ -3,20 +3,13 @@ from typing import Callable
 from uuid import UUID
 
 from src.app.exceptions.account_not_found import AccountNotFound
-from src.app.ports.clock import Clock
 from src.app.ports.unit_of_work import UnitOfWork
 from src.domain.entities.account import Account
-from src.domain.entities.balance_snapshot import BalanceSnapshot
 
 
 class UpdateAccount:
-    def __init__(
-        self,
-        uow_factory: Callable[[], UnitOfWork],
-        clock: Clock,
-    ) -> None:
+    def __init__(self, uow_factory: Callable[[], UnitOfWork]) -> None:
         self._uow_factory = uow_factory
-        self._clock = clock
 
     async def __call__(
         self,
@@ -37,13 +30,6 @@ class UpdateAccount:
 
             if balance_provided and balance is not None:
                 account.apply_snapshot(balance)
-                snapshot = BalanceSnapshot.create(
-                    account_id=account.id,
-                    amount=balance,
-                    recorded_at=self._clock.now(),
-                    clock=self._clock,
-                )
-                await uow.balance_snapshots.add(snapshot)
 
             await uow.accounts.update(account)
             return account

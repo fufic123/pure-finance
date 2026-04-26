@@ -26,7 +26,11 @@ class GetAccountBalance:
                 raise AccountNotFound()
             snapshot = await uow.balance_snapshots.latest(account_id)
             if snapshot is None:
-                return None
+                return AccountBalance(
+                    amount=account.balance,
+                    currency=account.currency,
+                    updated_at=account.created_at,
+                )
             return AccountBalance(
                 amount=snapshot.amount,
                 currency=account.currency,

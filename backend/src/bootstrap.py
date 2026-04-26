@@ -16,6 +16,7 @@ from src.app.services.accounts.delete_account import DeleteAccount
 from src.app.services.accounts.get_account import GetAccount
 from src.app.services.accounts.get_account_balance import GetAccountBalance
 from src.app.services.accounts.list_accounts import ListAccounts
+from src.app.services.accounts.take_daily_snapshots import TakeDailySnapshots
 from src.app.services.accounts.update_account import UpdateAccount
 from src.app.services.transactions.create_transaction import CreateTransaction
 from src.app.services.transactions.delete_transaction import DeleteTransaction
@@ -117,7 +118,10 @@ class AppContainer:
         return CreateAccount(uow_factory=self._uow_factory, clock=self._clock)
 
     def update_account(self) -> UpdateAccount:
-        return UpdateAccount(uow_factory=self._uow_factory, clock=self._clock)
+        return UpdateAccount(uow_factory=self._uow_factory)
+
+    def take_daily_snapshots(self) -> TakeDailySnapshots:
+        return TakeDailySnapshots(uow_factory=self._uow_factory, clock=self._clock)
 
     def get_account_balance(self) -> GetAccountBalance:
         return GetAccountBalance(uow_factory=self._uow_factory)

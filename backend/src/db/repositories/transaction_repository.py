@@ -53,6 +53,10 @@ class PostgresTransactionRepository:
         result = await self._session.execute(stmt.order_by(Transaction.booked_at.desc()))
         return list(result.scalars().all())
 
+    async def list_all(self) -> list[Transaction]:
+        result = await self._session.execute(select(Transaction).order_by(Transaction.booked_at.desc()))
+        return list(result.scalars().all())
+
     async def update(self, transaction: Transaction) -> None:
         await self._session.merge(transaction)
 
